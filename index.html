@@ -358,6 +358,13 @@
   /* SIGNAL ROW */
   .signal-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 6px; }
 
+  /* RECOMMENDED AD CARD */
+  .wl-ad-card { background: #fff; border: 1.5px dashed #c8d8f0; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .wl-ad-tag { position: absolute; top: 8px; left: 8px; background: #e8f0fb; color: #1a5bbf; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 3px; padding: 2px 6px; z-index: 2; }
+  .wl-ad-dismiss { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #888; z-index: 2; }
+  .wl-ad-dismiss:hover { background: #fff; color: #333; }
+  .wl-ad-label { font-size: 10px; color: #1a5bbf; font-weight: 600; padding: 8px 12px 2px; }
+
   /* BULK BID BUTTON */
   .bulk-bid-btn { background: #E8470A; border: none; border-radius: 5px; padding: 6px 16px; font-size: 12px; font-weight: 700; color: #fff; cursor: pointer; }
   .bulk-bid-btn:hover { background: #c93d09; }
@@ -811,6 +818,7 @@ let drawerOpen = false;
 let wlTab = 'active';
 let selectionMode = false;
 let selectedIds = new Set();
+let dismissedAd = false;
 let marginTarget = 0;
 let removedVehicle = null;
 let undoTimer = null;
@@ -1419,7 +1427,27 @@ function renderFullPage() {
   grid.style.display = 'grid';
   empty.style.display = 'none';
 
-  grid.innerHTML = items.map(v => {
+  const adCard = dismissedAd ? '' : `
+    <div class="wl-ad-card">
+      <span class="wl-ad-tag">Sponsored</span>
+      <button class="wl-ad-dismiss" onclick="dismissAd()">✕</button>
+      <div style="height:90px;background:linear-gradient(160deg,#b8cce4 0%,#c8cdd4 100%);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0.7">🚗</div>
+      <div class="wl-ad-label">Recommended for you</div>
+      <div class="wl-full-card-body">
+        <div class="wl-full-name">2021 Chevrolet Silverado 1500</div>
+        <div class="wl-full-trim">LT · Crew Cab · 4WD</div>
+        <div class="wl-full-meta-row"><span>44,200 mi</span><span>·</span><span>📍 Detroit, MI</span></div>
+        <div class="card-price-time">
+          <div><div class="cpt-label">Current Bid</div><div class="cpt-amount">$24,500</div></div>
+          <div style="text-align:right"><div class="cpt-label">Time Left</div><div class="cpt-time" style="color:#555">1:14:30</div></div>
+        </div>
+        <div class="wl-full-actions">
+          <button class="wl-full-bid" style="background:#1a5bbf" onclick="event.stopPropagation()">+ Watch</button>
+        </div>
+      </div>
+    </div>`;
+
+  const allCards = items.map(v => {
     const note = notes[v.id];
     const reserveBadge = v.reserve === 'no-reserve'
       ? `<span class="badge-no-reserve">No Reserve</span>`
@@ -1478,8 +1506,15 @@ function renderFullPage() {
         </div>
       </div>
     </div>
-  `}).join('');
+  `});
+  if (adCard) allCards.splice(Math.min(3, allCards.length), 0, adCard);
+  grid.innerHTML = allCards.join('');
   renderSummaryBar();
+}
+
+function dismissAd() {
+  dismissedAd = true;
+  renderFullPage();
 }
 
 function editNoteFull(id) {
