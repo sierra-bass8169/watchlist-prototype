@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACV Auctions — Watchlist Prototype</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; font-size: 14px; }
+
+  /* NAV */
+  .nav { background: #fff; color: #1a1a1a; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e8e8e8; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .nav-logo { font-weight: 900; font-size: 22px; letter-spacing: -1px; color: #E8470A; }
+  .nav-links { display: flex; align-items: center; gap: 20px; font-size: 13px; }
+  .nav-links a { color: #555; text-decoration: none; cursor: pointer; padding-bottom: 3px; }
+  .nav-links a:hover { color: #1a1a1a; }
+  .nav-link-active { color: #1a1a1a !important; font-weight: 600; border-bottom: 2px solid #E8470A; }
+  .nav-icon-btn { font-size: 15px; cursor: pointer; color: #666; padding: 4px 6px; border-radius: 4px; }
+  .nav-icon-btn:hover { background: #f5f5f5; }
+  .nav-avatar { width: 28px; height: 28px; background: #E8470A; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+  .watchlist-badge { background: #f5f5f5; color: #1a1a1a; border: 1px solid #e0e0e0; border-radius: 20px; padding: 5px 14px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .watchlist-badge:hover { background: #eee; }
+  .watchlist-badge .count { background: #E8470A; color: #fff; border-radius: 10px; padding: 1px 6px; font-size: 11px; }
+
+  /* LAYOUT */
+  .page { display: flex; height: calc(100vh - 52px); overflow: hidden; }
+
+  /* BROWSE PAGE — ACV SRP style */
+  .browse-page { display: flex; flex-direction: column; width: 100%; height: 100%; }
+  .srp-body { display: flex; flex: 1; overflow: hidden; }
+  .srp-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .srp-results { flex: 1; overflow-y: auto; padding: 16px; background: #f0f0f0; }
+
+  /* VEHICLE GRID */
+  .vehicle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  /* VEHICLE CARD — ACV style */
+  .vehicle-card { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; box-shadow: 0 1px 4px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
+  .vehicle-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+  .vehicle-card-photo { height: 155px; background: linear-gradient(135deg, #ddd 0%, #ccc 100%); display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 22px; position: relative; }
+  .save-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.88); border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .save-btn:hover { background: #fff; }
+  .save-btn.saved { background: #fff0f3; color: #E8470A; }
+  .vehicle-card-body { padding: 10px 12px; }
+  .vehicle-name { font-weight: 700; font-size: 14px; margin-bottom: 1px; cursor: pointer; line-height: 1.2; }
+  .vehicle-name:hover { text-decoration: underline; }
+  .vehicle-trim { color: #888; font-size: 11px; margin-bottom: 3px; }
+  .vehicle-mileage { color: #1565C0; font-size: 12px; font-weight: 500; margin-bottom: 5px; }
+  .bid-btn { width: 100%; margin-top: 8px; background: #1a1a2e; color: #fff; border: none; border-radius: 5px; padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .bid-btn:hover { background: #2d2d4e; }
+
+  /* WATCHLIST DRAWER */
+  .drawer { width: 0; overflow: hidden; background: #fafafa; border-left: 0px solid #e0e0e0; display: flex; flex-direction: column; transition: width 0.25s ease, border 0.25s; flex-shrink: 0; }
+  .drawer.open { width: 280px; border-left: 2px solid #e0e0e0; }
+  .drawer-header { padding: 12px 14px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; background: #fff; flex-shrink: 0; }
+  .drawer-title { font-weight: 700; font-size: 14px; white-space: nowrap; }
+  .drawer-controls { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .drawer-sort { font-size: 11px; color: #888; cursor: pointer; white-space: nowrap; }
+  .drawer-sort:hover { color: #333; }
+  .view-all-btn { font-size: 11px; background: #1a1a2e; color: #fff; border: none; border-radius: 4px; padding: 4px 9px; cursor: pointer; white-space: nowrap; }
+  .view-all-btn:hover { background: #2d2d4e; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .drawer-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #bbb; text-align: center; padding: 20px; }
+  .drawer-empty .icon { font-size: 32px; margin-bottom: 8px; }
+  .drawer-empty p { font-size: 13px; line-height: 1.5; }
+
+  /* WATCHLIST CARD */
+  .wl-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .wl-card-top { display: flex; gap: 8px; margin-bottom: 6px; }
+  .wl-thumb { width: 50px; height: 36px; background: linear-gradient(135deg, #ddd, #ccc); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #aaa; }
+  .wl-info { flex: 1; min-width: 0; }
+  .wl-name-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .wl-name { font-weight: 700; font-size: 12px; line-height: 1.2; cursor: pointer; }
+  .wl-name:hover { text-decoration: underline; }
+  .note-toggle { font-size: 12px; cursor: pointer; flex-shrink: 0; margin-left: 4px; opacity: 0.4; transition: opacity 0.15s; }
+  .note-toggle.has-note { opacity: 1; }
+  .wl-meta { color: #888; font-size: 10px; }
+  .wl-vin { color: #bbb; font-size: 9px; font-family: monospace; }
+  .note-preview { background: #fffbe6; border: 1px solid #f0e68c; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #7a6800; margin-bottom: 6px; line-height: 1.5; display: none; }
+  .note-preview.visible { display: block; }
+  .note-preview .note-actions { display: flex; justify-content: flex-end; margin-top: 3px; gap: 8px; }
+  .note-preview .note-edit { color: #aaa; cursor: pointer; font-size: 9px; }
+  .note-preview .note-edit:hover { color: #555; }
+  .note-input-wrap { display: none; margin-bottom: 6px; }
+  .note-input-wrap.visible { display: block; }
+  .note-input { width: 100%; border: 1px solid #f0e68c; border-radius: 4px; padding: 5px 7px; font-size: 10px; font-family: inherit; resize: none; background: #fffbe6; color: #7a6800; outline: none; }
+  .note-input:focus { border-color: #e8c800; }
+  .note-save-btn { font-size: 9px; background: #1a1a2e; color: #fff; border: none; border-radius: 3px; padding: 3px 8px; cursor: pointer; margin-top: 3px; float: right; }
+  .add-note-link { color: #ccc; font-size: 10px; cursor: pointer; margin-bottom: 6px; display: block; }
+  .add-note-link:hover { color: #888; }
+  .wl-price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 11px; }
+  .bid-movement { display: inline-flex; align-items: center; gap: 3px; background: #fff4f0; color: #c0390a; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 5px; margin-bottom: 5px; }
+  .bid-movement-full { display: inline-flex; align-items: center; gap: 3px; background: #fff4f0; color: #c0390a; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 7px; margin-bottom: 6px; }
+  .wl-price { font-weight: 700; }
+  .wl-actions { display: flex; gap: 4px; }
+  .wl-bid-btn { flex: 1; background: #1a1a2e; color: #fff; border: none; border-radius: 4px; padding: 5px 0; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .wl-bid-btn:hover { background: #2d2d4e; }
+  .wl-icon-btn { background: none; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 7px; font-size: 11px; cursor: pointer; }
+  .wl-icon-btn:hover { background: #f5f5f5; }
+  .undo-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 12px; z-index: 999; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .undo-toast.show { opacity: 1; pointer-events: all; }
+  .undo-toast button { background: none; border: none; color: #7df; cursor: pointer; font-size: 13px; font-weight: 700; }
+
+  /* EXPIRY ALERT TOAST */
+  .expiry-toast { position: fixed; bottom: 20px; right: 24px; background: #fff; border: 2px solid #d44; border-radius: 10px; padding: 12px 16px; font-size: 13px; display: flex; align-items: flex-start; gap: 10px; z-index: 998; box-shadow: 0 4px 16px rgba(0,0,0,0.15); opacity: 0; transition: opacity 0.25s, transform 0.25s; transform: translateY(12px); pointer-events: none; max-width: 280px; }
+  .expiry-toast.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .expiry-toast-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+  .expiry-toast-body { flex: 1; }
+  .expiry-toast-title { font-weight: 700; color: #d44; margin-bottom: 3px; }
+  .expiry-toast-msg { color: #555; font-size: 12px; line-height: 1.4; }
+  .expiry-toast-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .expiry-toast-view { background: #d44; color: #fff; border: none; border-radius: 5px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .expiry-toast-dismiss { background: none; border: 1px solid #ddd; border-radius: 5px; padding: 5px 10px; font-size: 12px; color: #888; cursor: pointer; }
+
+  /* EXPIRING SOON BADGE */
+  @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(212,68,68,0.5); } 70% { box-shadow: 0 0 0 5px rgba(212,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(212,68,68,0); } }
+  .expiring-badge { display: inline-flex; align-items: center; gap: 4px; background: #d44; color: #fff; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; animation: pulse-ring 1.8s infinite; }
+  .expiring-badge-full { display: inline-flex; align-items: center; gap: 4px; background: #d44; color: #fff; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; animation: pulse-ring 1.8s infinite; }
+
+  /* LABEL CHIPS */
+  .label-chip { display: inline-flex; align-items: center; border-radius: 3px; padding: 2px 7px; font-size: 10px; font-weight: 700; gap: 5px; margin-bottom: 4px; cursor: pointer; }
+  .label-chip-full { display: inline-flex; align-items: center; border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 700; gap: 5px; margin-bottom: 5px; cursor: pointer; }
+  .label-chip .label-x, .label-chip-full .label-x { opacity: 0.6; font-size: 10px; }
+  .label-chip:hover .label-x, .label-chip-full:hover .label-x { opacity: 1; }
+  .add-label-link { color: #bbb; font-size: 10px; cursor: pointer; margin-bottom: 4px; display: block; }
+  .add-label-link:hover { color: #888; }
+  .add-label-link-full { color: #bbb; font-size: 11px; cursor: pointer; margin-bottom: 5px; display: block; }
+  .add-label-link-full:hover { color: #888; }
+
+  /* LABEL PICKER POPOVER */
+  .label-popover { position: fixed; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.14); z-index: 300; width: 170px; display: none; }
+  .label-popover.show { display: block; }
+  .label-popover h4 { font-size: 11px; font-weight: 700; margin-bottom: 8px; color: #333; }
+  .label-option { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+  .label-option:hover { background: #f5f5f5; }
+  .label-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .label-clear { margin-top: 6px; border-top: 1px solid #eee; padding-top: 6px; color: #888; font-size: 11px; cursor: pointer; padding-left: 6px; }
+  .label-clear:hover { color: #555; }
+
+  /* ALERT POPOVER */
+  .alert-popover { position: fixed; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 200; width: 200px; display: none; }
+  .alert-popover.show { display: block; }
+  .alert-popover h4 { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .alert-popover label { font-size: 11px; color: #666; display: block; margin-bottom: 4px; }
+  .alert-popover input { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 5px 8px; font-size: 12px; margin-bottom: 8px; }
+  .alert-popover .alert-save { width: 100%; background: #1a1a2e; color: #fff; border: none; border-radius: 4px; padding: 6px; font-size: 12px; cursor: pointer; }
+
+  /* OVERLAY BACKDROP */
+  .wl-overlay-backdrop { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .wl-overlay-backdrop.active { opacity: 1; pointer-events: all; }
+
+  /* FULL WATCHLIST PAGE — slide-up overlay */
+  .wl-page { position: fixed; top: 52px; left: 0; right: 0; bottom: 0; z-index: 60; display: flex; flex-direction: column; transform: translateY(105%); transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94); background: #f0f0f0; }
+  .wl-page.active { transform: translateY(0); }
+  .browse-page { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+  /* Nav — watchlist active state */
+  .nav-wl-active .nav-link-active { color: #555 !important; border-bottom-color: transparent !important; font-weight: 400; }
+  .nav-wl-active .watchlist-badge { background: #FFF3EE; border-color: #E8470A; color: #E8470A; font-weight: 700; }
+  .nav-wl-active .watchlist-badge .count { background: #E8470A; }
+
+  /* Breadcrumb / overlay header */
+  .wl-breadcrumb { background: #E8470A; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-size: 13px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .breadcrumb-link { color: rgba(255,255,255,0.85); cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+  .breadcrumb-link:hover { color: #fff; text-decoration: underline; }
+  .breadcrumb-sep { color: rgba(255,255,255,0.45); font-size: 16px; line-height: 1; }
+  .breadcrumb-current { color: #fff; font-weight: 700; font-size: 15px; }
+  .breadcrumb-count { color: rgba(255,255,255,0.7); font-size: 12px; margin-left: 2px; }
+  .wl-close-btn { margin-left: auto; display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 7px 16px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; }
+  .wl-close-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* Search bar + filter pills */
+  .wl-search-row { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 12px 20px; display: flex; flex-direction: row; align-items: center; gap: 12px; flex-shrink: 0; }
+  .wl-search-bar { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #c8c8c8; border-radius: 6px; padding: 9px 14px; flex: 1; min-width: 0; }
+  .wl-search-bar:focus-within { border-color: #888; }
+  .wl-search-input { border: none; background: transparent; flex: 1; font-size: 13px; outline: none; color: #333; }
+  .wl-search-input::placeholder { color: #aaa; }
+  .search-icon { font-size: 15px; color: #888; flex-shrink: 0; }
+  .filter-pills { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; flex-shrink: 0; }
+  .filter-pill { background: #fff; border: 1px solid #bbb; border-radius: 4px; padding: 7px 14px; font-size: 12px; cursor: pointer; color: #333; transition: all 0.15s; white-space: nowrap; font-weight: 500; }
+  .filter-pill:hover { border-color: #555; }
+  .filter-pill-more { display: flex; align-items: center; gap: 5px; }
+
+  /* Page body layout */
+  .wl-page-body { display: flex; flex: 1; overflow: hidden; }
+
+  /* Filter sidebar */
+  .wl-filters { width: 210px; border-right: 1px solid #e0e0e0; padding: 16px 14px; overflow-y: auto; background: #fff; flex-shrink: 0; transition: width 0.2s ease, padding 0.2s ease; min-width: 40px; }
+  .wl-filters.collapsed { width: 40px; padding: 10px 6px; overflow: hidden; }
+  .wl-filters.collapsed .filter-section,
+  .wl-filters.collapsed .filter-special,
+  .wl-filters.collapsed .filter-divider,
+  .wl-filters.collapsed .clear-events-btn,
+  .wl-filters.collapsed .filter-header-title { display: none; }
+  .wl-filters.collapsed .filter-header { justify-content: center; }
+  .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; white-space: nowrap; }
+  .filter-header-title { font-size: 13px; font-weight: 600; color: #333; }
+  .sidebar-collapse-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 3px 7px; cursor: pointer; font-size: 13px; color: #555; flex-shrink: 0; }
+  .sidebar-collapse-btn:hover { background: #f5f5f5; border-color: #aaa; }
+  .filter-section { margin-bottom: 18px; }
+  .filter-section label { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #333; margin-bottom: 6px; cursor: pointer; gap: 6px; }
+  .filter-section label span.fl { display: flex; align-items: center; gap: 6px; flex: 1; }
+  .filter-section input[type=checkbox] { cursor: pointer; accent-color: #E8470A; flex-shrink: 0; }
+  .filter-count { color: #888; font-size: 12px; flex-shrink: 0; }
+  .filter-special { background: #fffbe6; border: 1px solid #f0e68c; border-radius: 6px; padding: 8px 10px; margin-bottom: 14px; }
+  .filter-special label { color: #7a6800; font-weight: 600; font-size: 13px; }
+  .filter-divider { border-top: 1px solid #e8e8e8; margin: 14px 0; }
+  .filter-section-title { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  .filter-section-desc { font-size: 11px; color: #888; margin-bottom: 8px; line-height: 1.4; }
+  .filter-section-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .filter-section-row .filter-section-title { margin-bottom: 0; }
+  .view-events-link { font-size: 12px; color: #1565C0; cursor: pointer; font-weight: 500; }
+  .view-events-link:hover { text-decoration: underline; }
+  .clear-events-btn { width: 100%; border: 1px solid #ccc; border-radius: 20px; background: #fff; color: #444; font-size: 13px; padding: 7px 0; cursor: pointer; margin-bottom: 14px; }
+  .clear-events-btn:hover { background: #f5f5f5; }
+  .filter-create-link { font-size: 13px; color: #E8470A; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+
+  /* Main content + tabs */
+  .wl-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .wl-tabs { display: flex; gap: 8px; padding: 12px 16px; background: #fff; border-bottom: 1px solid #e8e8e8; flex-shrink: 0; align-items: center; }
+  .tab-pill { background: #fff; border: 1.5px solid #ccc; border-radius: 999px; padding: 7px 18px; font-size: 13px; color: #444; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-weight: 500; }
+  .tab-pill:hover { border-color: #888; color: #1a1a1a; }
+  .tab-active { border-color: #1a1a1a !important; color: #1a1a1a !important; font-weight: 600; }
+  /* SUMMARY BAR */
+  .wl-summary-bar { display: flex; align-items: center; gap: 20px; padding: 8px 16px; background: #f8f8f8; border-bottom: 1px solid #e8e8e8; font-size: 12px; color: #555; flex-shrink: 0; flex-wrap: wrap; }
+  .summary-stat { display: flex; align-items: center; gap: 5px; }
+  .summary-stat .stat-val { font-weight: 700; color: #1a1a1a; }
+  .summary-stat .stat-val.urgent { color: #d44; }
+  .summary-sep { color: #ddd; }
+
+  .wl-results-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8e8e8; flex-shrink: 0; }
+  .results-count { font-size: 13px; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .refresh-btn { background: none; border: none; cursor: pointer; color: #666; font-size: 14px; padding: 2px; border-radius: 50%; }
+  .refresh-btn:hover { color: #1a1a1a; }
+  .sort-btn { display: flex; align-items: center; gap: 6px; border: 1px solid #ccc; border-radius: 6px; background: #fff; padding: 7px 12px; font-size: 13px; cursor: pointer; color: #333; font-weight: 500; }
+  .sort-btn:hover { border-color: #888; }
+  .sort-icon { font-size: 12px; color: #666; }
+  .view-toggle { display: flex; gap: 4px; }
+  .view-toggle button { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 15px; color: #555; }
+  .view-toggle button:hover { border-color: #888; }
+  .view-toggle button.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .wl-results { flex: 1; overflow-y: auto; padding: 16px; background: #f0f0f0; }
+  .wl-vehicle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  /* BULK ACTIONS */
+  .select-mode-btn { background: none; border: 1.5px solid #ccc; border-radius: 6px; padding: 5px 12px; font-size: 12px; color: #555; cursor: pointer; font-weight: 500; }
+  .select-mode-btn.active { border-color: #1a1a2e; color: #1a1a2e; background: #f0f0f8; font-weight: 600; }
+  .card-select-overlay { position: absolute; top: 8px; left: 8px; z-index: 5; }
+  .card-select-overlay input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: #1a1a2e; }
+  .wl-full-card.selected { outline: 2px solid #1a1a2e; outline-offset: -1px; }
+  .bulk-bar { position: sticky; bottom: 0; left: 0; right: 0; background: #1a1a2e; color: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; z-index: 10; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: opacity 0.2s; flex-shrink: 0; }
+  .bulk-bar.show { opacity: 1; pointer-events: all; }
+  .bulk-bar-count { font-weight: 600; flex: 1; }
+  .bulk-select-all { background: none; border: 1px solid rgba(255,255,255,0.4); border-radius: 5px; padding: 6px 14px; font-size: 12px; color: #fff; cursor: pointer; }
+  .bulk-select-all:hover { background: rgba(255,255,255,0.1); }
+  .bulk-remove-btn { background: #d44; border: none; border-radius: 5px; padding: 6px 16px; font-size: 12px; font-weight: 700; color: #fff; cursor: pointer; }
+  .bulk-remove-btn:hover { background: #c33; }
+
+  /* ACV-style vehicle cards (Task 11) */
+  .wl-full-card { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; box-shadow: 0 1px 4px rgba(0,0,0,0.05); transition: box-shadow 0.15s; }
+  .wl-full-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+  .wl-full-card.closed-won { border-color: #4CAF50; }
+  .wl-full-card.closed-lost { opacity: 0.72; }
+  .closed-outcome-banner { padding: 7px 12px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+  .outcome-won { background: #e8f5e9; color: #2e7d32; }
+  .outcome-lost { background: #f5f5f5; color: #888; }
+  .closed-final-price { font-size: 13px; color: #888; margin-bottom: 4px; }
+  .closed-final-price strong { color: #1a1a1a; }
+
+  /* DEMAND SIGNAL */
+  .demand-signal { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .demand-signal-full { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+  .demand-high { background: #fdecea; color: #b71c1c; }
+  .demand-med { background: #fff8e1; color: #e65100; }
+  .demand-low { background: #f5f5f5; color: #757575; }
+
+  /* RETAIL SPREAD */
+  .retail-spread { font-size: 11px; color: #555; margin-bottom: 4px; }
+  .retail-spread strong { color: #2e7d32; }
+  .retail-spread-full { font-size: 12px; color: #555; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .retail-spread-full .spread-val { font-weight: 700; color: #2e7d32; font-size: 13px; }
+  .retail-spread-full .retail-val { color: #888; }
+
+  /* RECENT COMPS */
+  .comps-row { font-size: 10px; color: #888; margin-bottom: 4px; }
+  .comps-row span { color: #1a1a1a; font-weight: 600; }
+  .comps-row-full { font-size: 11px; color: #888; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .comps-row-full .comps-range { font-weight: 700; color: #1a1a1a; }
+  .comps-atmarket { color: #2e7d32; font-weight: 600; }
+  .comps-above { color: #d44; font-weight: 600; }
+
+  /* MATCHED SEARCH TAG */
+  .matched-search-tag { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .matched-search-tag-full { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+
+  /* MATCHED SEARCH TAG */
+  .matched-search-tag { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .matched-search-tag-full { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+
+  /* RE-LIST BADGE */
+  .relisted-badge { display: inline-flex; align-items: center; gap: 4px; background: #e8eaf6; color: #283593; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .relisted-badge-full { display: inline-flex; align-items: center; gap: 4px; background: #e8eaf6; color: #283593; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+
+  /* CONDITION REPORT EXPAND */
+  .condition-toggle { font-size: 11px; color: #1565c0; cursor: pointer; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
+  .condition-toggle:hover { text-decoration: underline; }
+  .condition-panel { display: none; background: #f8f9ff; border: 1px solid #dde4f5; border-radius: 5px; padding: 8px 10px; margin-bottom: 6px; font-size: 11px; }
+  .condition-panel.open { display: block; }
+  .cond-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .cond-row:last-child { margin-bottom: 0; }
+  .cond-label { color: #666; width: 56px; flex-shrink: 0; }
+  .cond-bar-wrap { flex: 1; background: #e0e0e0; border-radius: 2px; height: 5px; }
+  .cond-bar { height: 5px; border-radius: 2px; }
+  .cond-grade { font-weight: 700; font-size: 11px; width: 18px; text-align: right; }
+  .wl-full-card-photo { height: 155px; background: linear-gradient(135deg, #ddd, #ccc); display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 20px; position: relative; }
+  .card-menu-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.45); color: #fff; border: none; border-radius: 4px; padding: 2px 7px; font-size: 13px; cursor: pointer; letter-spacing: 1px; }
+  .badge-no-reserve { position: absolute; bottom: 8px; left: 8px; background: #222; color: #fff; border-radius: 4px; padding: 3px 8px; font-size: 10px; font-weight: 600; }
+  .badge-low-reserve { position: absolute; bottom: 8px; left: 8px; background: #7B1FA2; color: #fff; border-radius: 4px; padding: 3px 8px; font-size: 10px; font-weight: 600; }
+  .wl-full-card-body { padding: 10px 12px; }
+  .wl-full-name { font-weight: 700; font-size: 14px; cursor: pointer; margin-bottom: 1px; line-height: 1.2; }
+  .wl-full-name:hover { text-decoration: underline; }
+  .wl-full-trim { color: #888; font-size: 11px; margin-bottom: 3px; }
+  .wl-full-mileage { color: #1565C0; font-size: 12px; font-weight: 500; margin-bottom: 5px; }
+  .condition-dots { display: flex; gap: 4px; align-items: center; margin-bottom: 5px; }
+  .cond-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .card-timer { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; margin-bottom: 6px; }
+  .timer-label { color: #888; font-size: 10px; }
+  .wl-full-note { background: #fffbe6; border: 1px solid #f0e68c; border-radius: 4px; padding: 5px 8px; font-size: 11px; color: #7a6800; margin-bottom: 6px; line-height: 1.5; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+  .wl-note-text { flex: 1; }
+  .wl-note-edit { color: #aaa; cursor: pointer; font-size: 10px; flex-shrink: 0; }
+  .wl-note-edit:hover { color: #555; }
+  .add-note-full { color: #bbb; font-size: 11px; cursor: pointer; margin-bottom: 6px; display: block; }
+  .add-note-full:hover { color: #888; }
+  .bid-area { margin-bottom: 5px; }
+  .no-reserve-pill { background: #E8F5E9; color: #2E7D32; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 3px; }
+  .current-bid-label { color: #888; font-size: 11px; }
+  .current-bid-amount { font-weight: 700; font-size: 14px; }
+  .card-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #777; margin-bottom: 8px; flex-wrap: wrap; }
+  .top-seller-badge { color: #E8470A; font-size: 10px; font-weight: 600; }
+  .wl-full-vin { color: #bbb; font-size: 9px; font-family: monospace; margin-bottom: 5px; }
+  .wl-full-actions { display: flex; gap: 5px; }
+  .wl-full-bid { flex: 1; background: #1a1a2e; color: #fff; border: none; border-radius: 5px; padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .wl-full-bid:hover { background: #2d2d4e; }
+  .wl-full-icon { background: none; border: 1px solid #ddd; border-radius: 5px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
+  .wl-full-icon:hover { background: #f5f5f5; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div style="display:flex;align-items:center;gap:28px">
+    <div class="nav-logo">ACV</div>
+    <div class="nav-links">
+      <a class="nav-link-active">Marketplace</a>
+      <a>My ACV</a>
+      <a>Market Report</a>
+      <a>ACV Capital</a>
+      <a>ClearCar</a>
+      <a>ACV Transport</a>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="watchlist-badge" onclick="toggleDrawer()">
+      ♥ Watchlist <span class="count" id="nav-count">0</span>
+    </div>
+    <span class="nav-icon-btn">🔔</span>
+    <span class="nav-icon-btn" style="font-size:13px;font-weight:700;border:1px solid #ddd;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">?</span>
+    <div class="nav-avatar">S</div>
+  </div>
+</nav>
+
+<!-- ALERT POPOVER -->
+<div class="alert-popover" id="alert-popover">
+  <h4>🔔 Set Price Alert</h4>
+  <label>Alert me if bid drops below:</label>
+  <input type="number" placeholder="e.g. $25,000" id="alert-input">
+  <button class="alert-save" onclick="saveAlert()">Save Alert</button>
+</div>
+
+<!-- LABEL PICKER POPOVER -->
+<div class="label-popover" id="label-popover">
+  <h4>🏷 Add Label</h4>
+  <div id="label-options-list"></div>
+  <div class="label-clear" onclick="clearLabel()">✕ Remove label</div>
+</div>
+
+<!-- UNDO TOAST -->
+<div class="undo-toast" id="undo-toast">
+  Vehicle removed <button onclick="undoRemove()">Undo</button>
+</div>
+
+<!-- EXPIRY ALERT TOAST -->
+<div class="expiry-toast" id="expiry-toast">
+  <div class="expiry-toast-icon">⏰</div>
+  <div class="expiry-toast-body">
+    <div class="expiry-toast-title">Ending Soon</div>
+    <div class="expiry-toast-msg" id="expiry-toast-msg"></div>
+    <div class="expiry-toast-actions">
+      <button class="expiry-toast-view" onclick="openFullPage(); dismissExpiryToast()">View Watchlist</button>
+      <button class="expiry-toast-dismiss" onclick="dismissExpiryToast()">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY BACKDROP -->
+<div class="wl-overlay-backdrop" id="wl-backdrop" onclick="closeFullPage()"></div>
+
+<div class="page">
+
+  <!-- BROWSE PAGE -->
+  <div class="browse-page" id="browse-page">
+
+    <!-- Search bar + filter pills -->
+    <div class="wl-search-row">
+      <div class="wl-search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="wl-search-input" placeholder="Search Year, Make, Model, Trim, VIN, Or Auction ID...">
+      </div>
+      <div class="filter-pills">
+        <button class="filter-pill">Make &amp; Model</button>
+        <button class="filter-pill">Price</button>
+        <button class="filter-pill">Year</button>
+        <button class="filter-pill">Distance</button>
+        <button class="filter-pill">Mileage</button>
+        <button class="filter-pill">Auction Type</button>
+        <button class="filter-pill filter-pill-more">More <span style="font-size:11px">⊟</span></button>
+      </div>
+    </div>
+
+    <div class="srp-body">
+
+      <!-- Left filter sidebar -->
+      <div class="wl-filters" id="browse-sidebar">
+        <div class="filter-header">
+          <span class="filter-header-title">Filters</span>
+          <button class="sidebar-collapse-btn" onclick="toggleSidebar('browse-sidebar')" title="Collapse filters">‹</button>
+        </div>
+
+        <!-- Saved Searches -->
+        <div class="filter-section">
+          <div class="filter-section-title">Saved Searches</div>
+          <div class="filter-section-desc">Create a saved search to quickly access your desired vehicles.</div>
+          <div class="filter-create-link">+ Create Saved Search</div>
+        </div>
+
+        <!-- Clear Events button -->
+        <button class="clear-events-btn">Clear Events</button>
+
+        <!-- Events -->
+        <div class="filter-section">
+          <div class="filter-section-row">
+            <div class="filter-section-title">Events</div>
+            <span class="view-events-link">View Events</span>
+          </div>
+          <label>
+            <span class="fl"><input type="checkbox"> No Reserve</span>
+            <span class="filter-count">3</span>
+          </label>
+        </div>
+
+        <!-- Featured Seller Events -->
+        <div class="filter-section">
+          <div class="filter-section-row">
+            <div class="filter-section-title">Featured Seller Events</div>
+            <span class="view-events-link">View Events</span>
+          </div>
+          <label>
+            <span class="fl"><input type="checkbox"> $100 Avis Buy Fee</span>
+            <span class="filter-count">429</span>
+          </label>
+          <label>
+            <span class="fl"><input type="checkbox"> Fleet Remarketing Auction</span>
+            <span class="filter-count">21</span>
+          </label>
+        </div>
+
+        <!-- Private Events -->
+        <div class="filter-section">
+          <div class="filter-section-row">
+            <div class="filter-section-title">Private Events</div>
+            <span class="view-events-link">View Events</span>
+          </div>
+          <label>
+            <span class="fl"><input type="checkbox"> Amazon Autos</span>
+            <span class="filter-count">0</span>
+          </label>
+          <label>
+            <span class="fl"><input type="checkbox"> Atlantic Coast Automotive</span>
+            <span class="filter-count">0</span>
+          </label>
+          <label>
+            <span class="fl"><input type="checkbox"> Baxter Brand Lane</span>
+            <span class="filter-count">0</span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Main content -->
+      <div class="srp-main">
+
+        <!-- Tab pills -->
+        <div class="wl-tabs">
+          <button class="tab-pill">All (13,416)</button>
+          <button class="tab-pill">Coming Soon (819)</button>
+          <button class="tab-pill tab-active">✓ Active (2,081)</button>
+          <button class="tab-pill">Make Offer (10,516)</button>
+          <button class="tab-pill">Sold (13,617)</button>
+        </div>
+
+        <!-- Results bar -->
+        <div class="wl-results-bar">
+          <span class="results-count">
+            <span>142 results</span>
+            <button class="refresh-btn" title="Refresh">↻</button>
+          </span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="sort-btn">
+              <span class="sort-icon">↓</span> Priced to Sell ▾
+            </button>
+            <div class="view-toggle">
+              <button class="active" title="Grid view">⊞</button>
+              <button title="List view">☰</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle grid -->
+        <div class="srp-results">
+          <div class="vehicle-grid" id="vehicle-grid"></div>
+        </div>
+
+      </div>
+
+      <!-- WATCHLIST DRAWER -->
+      <div class="drawer" id="drawer">
+        <div class="drawer-header">
+          <div class="drawer-title">♥ Watchlist (<span id="drawer-count">0</span>)</div>
+          <div class="drawer-controls">
+            <span class="drawer-sort">Sort ▾</span>
+            <button class="view-all-btn" onclick="openFullPage()">⤢ View all</button>
+          </div>
+          <div id="drawer-matches-banner" style="display:none;margin-top:6px;background:#e3f2fd;color:#1565c0;font-size:11px;font-weight:600;border-radius:4px;padding:4px 8px;cursor:pointer" onclick="openFullPage();setTimeout(()=>{const cb=document.getElementById('matched-search-filter-cb');if(cb){cb.checked=true;toggleMatchedSearchFilter(true);}},150)">🔍 <span id="drawer-matches-count">0</span> New Matches from Saved Searches</div>
+        </div>
+        <div class="drawer-body" id="drawer-body">
+          <div class="drawer-empty">
+            <div class="icon">♥</div>
+            <p>Save vehicles to track them here. Click <strong>♥ Save</strong> on any listing.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FULL WATCHLIST PAGE -->
+  <div class="wl-page" id="wl-page">
+
+    <!-- Overlay header -->
+    <div class="wl-breadcrumb">
+      <span class="breadcrumb-link" onclick="closeFullPage()">← Marketplace</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">♥ My Watchlist</span>
+      <span class="breadcrumb-count" id="wl-count">0 vehicles</span>
+      <button class="wl-close-btn" onclick="closeFullPage()">✕ Close</button>
+    </div>
+
+    <!-- Search bar + filter pills (single row) -->
+    <div class="wl-search-row">
+      <div class="wl-search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="wl-search-input" placeholder="Search Year, Make, Model, Trim, VIN, Or Auction ID...">
+      </div>
+      <div class="filter-pills">
+        <button class="filter-pill">Make &amp; Model</button>
+        <button class="filter-pill">Price</button>
+        <button class="filter-pill">Year</button>
+        <button class="filter-pill">Distance</button>
+        <button class="filter-pill">Mileage</button>
+        <button class="filter-pill">Auction Type</button>
+        <button class="filter-pill filter-pill-more">More <span style="font-size:11px">⊟</span></button>
+      </div>
+    </div>
+
+    <div class="wl-page-body">
+
+      <!-- Filter sidebar -->
+      <div class="wl-filters" id="wl-sidebar">
+        <div class="filter-header">
+          <span class="filter-header-title">Filters</span>
+          <button class="sidebar-collapse-btn" onclick="toggleSidebar('wl-sidebar')" title="Collapse filters">‹</button>
+        </div>
+
+        <!-- Watchlist-only filter -->
+        <div class="filter-special">
+          <label><input type="checkbox"> 📝 Only with notes</label>
+        </div>
+
+        <!-- Profit target filter -->
+        <div class="filter-section">
+          <div class="filter-section-title">Min Margin Goal</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <span style="font-size:11px;color:#888">$</span>
+            <input type="number" id="margin-target-input" placeholder="e.g. 3000" min="0" step="500"
+              style="width:100%;border:1px solid #ddd;border-radius:4px;padding:4px 6px;font-size:12px;color:#1a1a1a"
+              oninput="setMarginTarget(this.value)">
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:4px" id="margin-target-hint"></div>
+        </div>
+
+        <!-- Matched search filter -->
+        <div class="filter-section">
+          <div class="filter-section-title">Saved Search</div>
+          <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;margin-top:4px">
+            <input type="checkbox" id="matched-search-filter-cb" onchange="toggleMatchedSearchFilter(this.checked)">
+            Matched search only
+          </label>
+          <div style="font-size:10px;color:#aaa;margin-top:3px" id="matched-search-count"></div>
+        </div>
+
+        <!-- Labels filter -->
+        <div class="filter-section" id="label-filter-section">
+          <div class="filter-section-title">Labels</div>
+          <div id="label-filter-list"></div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Saved Searches -->
+        <div class="filter-section">
+          <div class="filter-section-title">Saved Searches</div>
+          <div class="filter-section-desc">Create a saved search to quickly access your desired vehicles.</div>
+          <div class="filter-create-link">+ Create Saved Search</div>
+        </div>
+
+        <!-- Clear Events button -->
+        <button class="clear-events-btn">Clear Events</button>
+
+        <!-- Events -->
+        <div class="filter-section">
+          <div class="filter-section-row">
+            <div class="filter-section-title">Events</div>
+            <span class="view-events-link">View Events</span>
+          </div>
+          <label>
+            <span class="fl"><input type="checkbox"> No Reserve</span>
+            <span class="filter-count">3</span>
+          </label>
+        </div>
+
+        <!-- Featured Seller Events -->
+        <div class="filter-section">
+          <div class="filter-section-row">
+            <div class="filter-section-title">Featured Seller Events</div>
+            <span class="view-events-link">View Events</span>
+          </div>
+          <label>
+            <span class="fl"><input type="checkbox"> $100 Avis Buy Fee</span>
+            <span class="filter-count">429</span>
+          </label>
+          <label>
+            <span class="fl"><input type="checkbox"> Fleet Remarketing Auction</span>
+            <span class="filter-count">21</span>
+          </label>
+        </div>
+
+        <!-- Private Events -->
+        <div class="filter-section">
+          <div class="filter-section-row">
+            <div class="filter-section-title">Private Events</div>
+            <span class="view-events-link">View Events</span>
+          </div>
+          <label>
+            <span class="fl"><input type="checkbox"> Amazon Autos</span>
+            <span class="filter-count">0</span>
+          </label>
+          <label>
+            <span class="fl"><input type="checkbox"> Atlantic Coast Automotive</span>
+            <span class="filter-count">0</span>
+          </label>
+          <label>
+            <span class="fl"><input type="checkbox"> Baxter Brand Lane</span>
+            <span class="filter-count">0</span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Main content -->
+      <div class="wl-main">
+
+        <!-- Tab pills (capsule outline style) -->
+        <div class="wl-tabs" id="wl-tab-bar">
+          <button class="tab-pill tab-active" onclick="switchWlTab('active')">Active</button>
+          <button class="tab-pill" onclick="switchWlTab('closed')">Closed (2)</button>
+        </div>
+
+        <!-- Summary bar -->
+        <div class="wl-summary-bar" id="wl-summary-bar" style="display:none">
+          <span class="summary-stat">⏰ Ending today: <span class="stat-val urgent" id="sum-today">0</span></span>
+          <span class="summary-sep">·</span>
+          <span class="summary-stat">📅 Ending tomorrow: <span class="stat-val" id="sum-tomorrow">0</span></span>
+          <span class="summary-sep">·</span>
+          <span class="summary-stat">💰 Total exposure: <span class="stat-val" id="sum-exposure">$0</span></span>
+        </div>
+
+        <!-- Results bar -->
+        <div class="wl-results-bar">
+          <span class="results-count">
+            <span id="wl-results-count">0 results</span>
+            <button class="refresh-btn" title="Refresh">↻</button>
+          </span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="select-mode-btn" id="select-mode-btn" onclick="toggleSelectionMode()">Select</button>
+            <button class="sort-btn">
+              <span class="sort-icon">↓</span> Priced to Sell ▾
+            </button>
+            <div class="view-toggle">
+              <button class="active" title="Grid view">⊞</button>
+              <button title="List view">☰</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle grid -->
+        <div class="wl-results">
+          <div class="wl-vehicle-grid" id="wl-grid"></div>
+          <div id="wl-empty" style="display:none;text-align:center;padding:60px 20px;color:#bbb;">
+            <div style="font-size:36px;margin-bottom:12px">♥</div>
+            <p style="font-size:15px">Your watchlist is empty.<br>Save vehicles from search to track them here.</p>
+          </div>
+        </div>
+
+        <!-- Bulk action bar -->
+        <div class="bulk-bar" id="bulk-bar">
+          <span class="bulk-bar-count" id="bulk-bar-count">0 selected</span>
+          <button class="bulk-select-all" onclick="selectAllVisible()">Select all</button>
+          <button class="bulk-remove-btn" onclick="removeSelected()">Remove selected</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const vehicles = [
+  { id: 1, name: '2019 Ford F-150', trim: 'XLT • 4WD • 8cyl', miles: '67,412 miles', vin: '1FTEW1EP5KFA12345', price: '$28,750', priceNum: 28750, bidDelta: 750, retailValue: 34500, watchers: 14, matchedSearch: 'Ford F-150 4WD', comps: {low:26800,high:31200,count:14}, label: 'Bid', time: '00:45:12', urgency: 'urgent', color: '#7a8a9a', reserve: 'no-reserve', conditions: ['#4CAF50','#2196F3'], location: 'Buffalo, NY', topSeller: true, cr: {engine:4,body:3,interior:4,tires:3} },
+  { id: 2, name: '2021 Honda Civic', trim: 'LX • FWD • 4cyl', miles: '42,180 miles', vin: '2HGFC2F6XMH123456', price: '$12,400', priceNum: 12400, bidDelta: 0, retailValue: 17200, watchers: 3, comps: {low:11400,high:13900,count:22}, label: 'Bid', time: '02:08:44', urgency: 'soon', color: '#9aacba', reserve: 'low-reserve', conditions: ['#4CAF50','#9C27B0'], location: 'Cleveland, OH', topSeller: false, cr: {engine:5,body:4,interior:5,tires:4} },
+  { id: 3, name: '2020 Toyota RAV4', trim: 'XLE • AWD • 4cyl', miles: '31,056 miles', vin: '2T3BWRFV5LW123890', price: '$22,000', priceNum: 22000, bidDelta: 0, retailValue: 29800, watchers: 9, matchedSearch: 'Toyota RAV4 AWD Clean', comps: {low:20500,high:24100,count:31}, label: 'Buy Now', time: 'Tomorrow', urgency: 'later', color: '#8a9e7a', reserve: 'no-reserve', conditions: ['#4CAF50','#4CAF50'], location: 'Pittsburgh, PA', topSeller: true, cr: {engine:5,body:5,interior:4,tires:5} },
+  { id: 4, name: '2018 Chevrolet Silverado', trim: '1500 LT • 4WD • 8cyl', miles: '89,340 miles', vin: '3GCUYDED5JG123001', price: '$31,200', priceNum: 31200, bidDelta: 1200, retailValue: 36500, watchers: 21, relisted: true, relistCount: 2, comps: {low:28900,high:33400,count:9}, label: 'Bid', time: 'Tomorrow', urgency: 'later', color: '#aaaaaa', reserve: null, conditions: ['#FF9800','#2196F3'], location: 'Detroit, MI', topSeller: false, cr: {engine:3,body:2,interior:3,tires:2} },
+  { id: 5, name: '2022 Nissan Altima', trim: 'SV • FWD • 4cyl', miles: '18,720 miles', vin: '1N4BL4EW3NC123445', price: '$16,500', priceNum: 16500, bidDelta: 0, retailValue: 21000, watchers: 2, comps: {low:15200,high:18000,count:17}, label: 'Buy Now', time: 'Friday', urgency: 'later', color: '#c0baba', reserve: 'no-reserve', conditions: ['#4CAF50','#4CAF50'], location: 'Rochester, NY', topSeller: false, cr: {engine:5,body:5,interior:5,tires:5} },
+  { id: 6, name: '2020 Jeep Grand Cherokee', trim: 'Laredo • 4WD • 6cyl', miles: '54,210 miles', vin: '1C4RJFBG5LC123789', price: '$34,900', priceNum: 34900, bidDelta: 2400, retailValue: 42000, watchers: 31, matchedSearch: 'Jeep Grand Cherokee 4WD', comps: {low:31500,high:37200,count:11}, label: 'Bid', time: '00:58:31', urgency: 'urgent', color: '#909090', reserve: 'low-reserve', conditions: ['#FF9800','#9C27B0'], location: 'Syracuse, NY', topSeller: true, cr: {engine:4,body:3,interior:3,tires:4} },
+  { id: 7, name: '2021 Hyundai Tucson', trim: 'SEL • AWD • 4cyl', miles: '28,900 miles', vin: 'KM8J3CA46MU123234', price: '$19,800', priceNum: 19800, bidDelta: 0, retailValue: 26500, watchers: 6, relisted: true, relistCount: 1, comps: {low:18200,high:21500,count:19}, label: 'Buy Now', time: '03:14:05', urgency: 'soon', color: '#b0b5be', reserve: 'no-reserve', conditions: ['#4CAF50','#4CAF50'], location: 'Albany, NY', topSeller: false, cr: {engine:5,body:4,interior:4,tires:4} },
+  { id: 8, name: '2019 BMW 3 Series', trim: '330i • RWD • 4cyl', miles: '47,620 miles', vin: 'WBA5R7C56KAE12345', price: '$27,500', priceNum: 27500, bidDelta: 500, retailValue: 35000, watchers: 18, comps: {low:24800,high:29600,count:8}, label: 'Bid', time: 'Thursday', urgency: 'later', color: '#a0a8b0', reserve: null, conditions: ['#4CAF50','#2196F3'], location: 'Boston, MA', topSeller: true, cr: {engine:4,body:5,interior:4,tires:3} },
+];
+
+const closedVehicles = [
+  { id: 101, name: '2020 Ford Explorer', trim: 'XLT • 4WD • 6cyl', miles: '48,200 miles', vin: '1FMSK8DH1LGA12345', outcome: 'won', finalPrice: '$29,500', savedAt: '$27,000', color: '#7a8a9a', conditions: ['#4CAF50','#2196F3'], location: 'Buffalo, NY', topSeller: false },
+  { id: 102, name: '2019 Dodge Ram 1500', trim: 'Big Horn • 4WD • 8cyl', miles: '72,100 miles', vin: '1C6SRFFT5KN123456', outcome: 'lost', finalPrice: '$36,200', savedAt: '$32,000', color: '#aaaaaa', conditions: ['#FF9800','#4CAF50'], location: 'Detroit, MI', topSeller: true },
+];
+
+let watchlist = new Set();
+let notes = {};
+let savedPrices = {};
+let drawerOpen = false;
+let wlTab = 'active';
+let selectionMode = false;
+let selectedIds = new Set();
+let marginTarget = 0;
+let removedVehicle = null;
+let undoTimer = null;
+
+// ─── RENDER BROWSE GRID ─────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('vehicle-grid');
+  grid.innerHTML = vehicles.map(v => {
+    const condDots = v.conditions.map(c => `<span class="cond-dot" style="background:${c}"></span>`).join('');
+    const reserveBadge = v.reserve === 'no-reserve'
+      ? `<span class="badge-no-reserve">✓ No Reserve</span>`
+      : v.reserve === 'low-reserve'
+      ? `<span class="badge-low-reserve">↓ Low Reserve</span>`
+      : '';
+    const timerColor = v.urgency === 'urgent' ? '#d44' : v.urgency === 'soon' ? '#e8a000' : '#555';
+    const saved = watchlist.has(v.id);
+    return `
+    <div class="vehicle-card">
+      <div class="vehicle-card-photo" style="background:linear-gradient(160deg,${v.color} 0%,#c8cdd4 100%)">
+        <span style="opacity:0.5">🚗</span>
+        <button class="save-btn ${saved ? 'saved' : ''}" onclick="toggleSave(${v.id})" id="save-btn-${v.id}" title="${saved ? 'Remove from watchlist' : 'Save to watchlist'}">
+          ${saved ? '♥' : '♡'}
+        </button>
+        ${reserveBadge}
+      </div>
+      <div class="vehicle-card-body">
+        <div class="vehicle-name">${v.name}</div>
+        <div class="vehicle-trim">${v.trim}</div>
+        <div class="vehicle-mileage">${v.miles}</div>
+        <div class="condition-dots">${condDots}</div>
+        <div class="card-timer">
+          <span>⏱</span>
+          <span class="timer-label">Time Remaining</span>
+          <span style="font-weight:600;color:${timerColor}">${v.time}</span>
+        </div>
+        <div class="bid-area">
+          ${v.reserve === 'no-reserve' ? '<div class="no-reserve-pill">✓ No Reserve</div>' : ''}
+          <div>
+            <span class="current-bid-label">Current Bid </span>
+            <span class="current-bid-amount">${v.price}</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span>📍 ${v.location}</span>
+          ${v.topSeller ? '<span class="top-seller-badge">⭐ Top Seller</span>' : ''}
+        </div>
+        <button class="bid-btn">${v.label}</button>
+      </div>
+    </div>
+  `}).join('');
+}
+
+// ─── TOGGLE SAVE ─────────────────────────────────────────
+function toggleSave(id) {
+  if (watchlist.has(id)) {
+    watchlist.delete(id);
+    delete savedPrices[id];
+  } else {
+    watchlist.add(id);
+    const v = vehicles.find(v => v.id === id);
+    // Record price at save time; simulate pre-existing bid history using bidDelta
+    savedPrices[id] = v.priceNum - (v.bidDelta || 0);
+    if (!drawerOpen) toggleDrawer();
+    checkExpiryAlert();
+  }
+  updateCount();
+  renderGrid();
+  renderDrawer();
+}
+
+function updateCount() {
+  document.getElementById('nav-count').textContent = watchlist.size;
+  document.getElementById('drawer-count').textContent = watchlist.size;
+  document.getElementById('wl-count').textContent = watchlist.size + ' vehicle' + (watchlist.size !== 1 ? 's' : '');
+  // Matched search banner in drawer
+  const matchItems = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(v => v && !!v.matchedSearch);
+  const banner = document.getElementById('drawer-matches-banner');
+  const bannerCount = document.getElementById('drawer-matches-count');
+  if (banner && bannerCount) {
+    bannerCount.textContent = matchItems.length;
+    banner.style.display = matchItems.length > 0 ? 'block' : 'none';
+  }
+}
+
+// ─── LABELS ──────────────────────────────────────────────
+const LABELS = [
+  { key: 'priority', name: 'Top Priority', bg: '#ffe0b2', color: '#e65100' },
+  { key: 'research', name: 'Needs Research', bg: '#e3f2fd', color: '#1565c0' },
+  { key: 'lot', name: 'For Lot', bg: '#e8f5e9', color: '#2e7d32' },
+  { key: 'pass', name: 'Pass', bg: '#f3e5f5', color: '#7b1fa2' },
+];
+
+let vehicleLabels = {};
+let activeLabelFilter = null;
+let activeMatchedSearchFilter = false;
+let labelPickerTargetId = null;
+
+function getLabelDef(key) { return LABELS.find(l => l.key === key); }
+
+function getLabelChip(id, full) {
+  const key = vehicleLabels[id];
+  if (!key) return '';
+  const lbl = getLabelDef(key);
+  if (!lbl) return '';
+  const cls = full ? 'label-chip-full' : 'label-chip';
+  return `<span class="${cls}" style="background:${lbl.bg};color:${lbl.color}" onclick="event.stopPropagation();openLabelPicker(event,${id})">
+    ${lbl.name} <span class="label-x">✕</span>
+  </span>`;
+}
+
+function openLabelPicker(event, id) {
+  event.stopPropagation();
+  labelPickerTargetId = id;
+  const pop = document.getElementById('label-popover');
+  const list = document.getElementById('label-options-list');
+  list.innerHTML = LABELS.map(lbl => `
+    <div class="label-option" onclick="setLabel(${id},'${lbl.key}')">
+      <span class="label-dot" style="background:${lbl.color}"></span>${lbl.name}
+    </div>`).join('');
+  // position near click
+  const r = Math.min(event.clientX + 8, window.innerWidth - 190);
+  const t = Math.min(event.clientY + 8, window.innerHeight - 200);
+  pop.style.left = r + 'px';
+  pop.style.top = t + 'px';
+  pop.classList.add('show');
+  setTimeout(() => document.addEventListener('click', closeLabelPicker, { once: true }), 0);
+}
+
+function closeLabelPicker() {
+  document.getElementById('label-popover').classList.remove('show');
+}
+
+function setLabel(id, key) {
+  vehicleLabels[id] = key;
+  closeLabelPicker();
+  renderDrawer();
+  renderFullPage();
+  renderLabelFilter();
+}
+
+function clearLabel() {
+  if (labelPickerTargetId !== null) delete vehicleLabels[labelPickerTargetId];
+  closeLabelPicker();
+  renderDrawer();
+  renderFullPage();
+  renderLabelFilter();
+}
+
+function renderLabelFilter() {
+  const list = document.getElementById('label-filter-list');
+  if (!list) return;
+  list.innerHTML = LABELS.map(lbl => {
+    const count = [...watchlist].filter(id => vehicleLabels[id] === lbl.key).length;
+    const active = activeLabelFilter === lbl.key;
+    return `<label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:2px 0;font-size:12px;${active ? 'font-weight:700' : ''}">
+      <input type="checkbox" ${active ? 'checked' : ''} onchange="toggleLabelFilter('${lbl.key}', this.checked)">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${lbl.color};flex-shrink:0"></span>
+      ${lbl.name} <span style="color:#aaa;margin-left:auto">${count}</span>
+    </label>`;
+  }).join('');
+}
+
+function toggleLabelFilter(key, checked) {
+  activeLabelFilter = checked ? key : null;
+  // uncheck other labels
+  const inputs = document.querySelectorAll('#label-filter-list input[type=checkbox]');
+  inputs.forEach(cb => { cb.checked = cb.closest('label').innerHTML.includes(`'${key}'`) && checked; });
+  renderFullPage();
+}
+
+function toggleMatchedSearchFilter(checked) {
+  activeMatchedSearchFilter = checked;
+  renderFullPage();
+}
+
+// ─── EXPIRY ALERTS ───────────────────────────────────────
+let expiryToastDismissed = false;
+
+function checkExpiryAlert() {
+  if (expiryToastDismissed) return;
+  const urgent = [...watchlist]
+    .map(id => vehicles.find(v => v.id === id))
+    .filter(v => v && v.urgency === 'urgent');
+  if (urgent.length === 0) return;
+  const names = urgent.map(v => v.name.replace(/^\d{4}\s/, '')); // strip year for brevity
+  const msg = urgent.length === 1
+    ? `Your saved ${names[0]} ends in under 1 hour.`
+    : `${urgent.length} saved vehicles end in under 1 hour: ${names.slice(0,2).join(', ')}${urgent.length > 2 ? ' and more' : ''}.`;
+  document.getElementById('expiry-toast-msg').textContent = msg;
+  document.getElementById('expiry-toast').classList.add('show');
+  setTimeout(() => dismissExpiryToast(), 8000);
+}
+
+function dismissExpiryToast() {
+  expiryToastDismissed = true;
+  document.getElementById('expiry-toast').classList.remove('show');
+}
+
+// ─── RECENT COMPS ────────────────────────────────────────
+function getComps(v, full) {
+  if (!v.comps || !v.priceNum) return '';
+  const { low, high, count } = v.comps;
+  const lowFmt = '$' + low.toLocaleString();
+  const highFmt = '$' + high.toLocaleString();
+  const midpoint = (low + high) / 2;
+  const vs = v.priceNum < low ? 'below' : v.priceNum > high ? 'above' : 'at market';
+  const vsClass = vs === 'at market' ? 'comps-atmarket' : vs === 'below' ? 'comps-atmarket' : 'comps-above';
+  const vsLabel = vs === 'below' ? '↓ below market' : vs === 'above' ? '↑ above market' : '✓ at market';
+  if (full) {
+    return `<div class="comps-row-full">
+      <span>📊 Comps:</span>
+      <span class="comps-range">${lowFmt} – ${highFmt}</span>
+      <span class="${vsClass}">${vsLabel}</span>
+      <span style="color:#ccc">·</span>
+      <span>${count} sold, 30d</span>
+    </div>`;
+  }
+  return `<div class="comps-row">Comps: <span>${lowFmt}–${highFmt}</span> · <span class="${vsClass}">${vsLabel}</span></div>`;
+}
+
+// ─── MATCHED SEARCH TAG ───────────────────────────────────
+function getMatchedSearchTag(v, full) {
+  if (!v.matchedSearch) return '';
+  const cls = full ? 'matched-search-tag-full' : 'matched-search-tag';
+  return `<div class="${cls}">🔍 Matches: "${v.matchedSearch}"</div>`;
+}
+
+// ─── RE-LIST BADGE ───────────────────────────────────────
+function getRelistedBadge(v, full) {
+  if (!v.relisted) return '';
+  const times = v.relistCount > 1 ? `${v.relistCount}×` : '';
+  const cls = full ? 'relisted-badge-full' : 'relisted-badge';
+  return `<div class="${cls}">🔄 Re-Listed${times ? ' ' + times : ''}</div>`;
+}
+
+// ─── DEMAND SIGNAL ───────────────────────────────────────
+function getDemandSignal(v, full) {
+  const w = v.watchers || 0;
+  if (w === 0) return '';
+  const heat = w >= 15 ? 'high' : w >= 7 ? 'med' : 'low';
+  const label = heat === 'high' ? '🔥 High demand' : heat === 'med' ? '👀 Moderate interest' : '👁 ' + w + ' watching';
+  const cls = full ? `demand-signal-full demand-${heat}` : `demand-signal demand-${heat}`;
+  const text = full ? (heat === 'high' ? `🔥 ${w} dealers watching — High demand` : heat === 'med' ? `👀 ${w} dealers watching` : `👁 ${w} dealers watching`) : label;
+  return `<div class="${cls}">${text}</div>`;
+}
+
+// ─── RETAIL SPREAD ────────────────────────────────────────
+function getRetailSpread(v, full) {
+  if (!v.retailValue || !v.priceNum) return '';
+  const spread = v.retailValue - v.priceNum;
+  const spreadFmt = '$' + spread.toLocaleString();
+  const retailFmt = '$' + v.retailValue.toLocaleString();
+  if (full) {
+    return `<div class="retail-spread-full">
+      <span class="spread-val">+${spreadFmt} spread</span>
+      <span class="retail-val">Retail ~${retailFmt}</span>
+    </div>`;
+  }
+  return `<div class="retail-spread">Spread: <strong>+${spreadFmt}</strong> · Retail ~${retailFmt}</div>`;
+}
+
+// ─── CONDITION REPORT ────────────────────────────────────
+function getConditionBar(grade) {
+  // grade 1–5; color green for 4-5, amber for 3, red for 1-2
+  const pct = (grade / 5) * 100;
+  const color = grade >= 4 ? '#4CAF50' : grade === 3 ? '#FF9800' : '#d44';
+  return `<div class="cond-bar-wrap"><div class="cond-bar" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+function getConditionReportHtml(v) {
+  if (!v.cr) return '';
+  const rows = [
+    { label: 'Engine', grade: v.cr.engine },
+    { label: 'Body', grade: v.cr.body },
+    { label: 'Interior', grade: v.cr.interior },
+    { label: 'Tires', grade: v.cr.tires },
+  ].map(r => `
+    <div class="cond-row">
+      <span class="cond-label">${r.label}</span>
+      ${getConditionBar(r.grade)}
+      <span class="cond-grade" style="color:${r.grade >= 4 ? '#2e7d32' : r.grade === 3 ? '#e65100' : '#d44'}">${r.grade}/5</span>
+    </div>`).join('');
+  return `
+    <div class="condition-toggle" onclick="toggleCondition(${v.id})">
+      <span id="cond-arrow-${v.id}">▶</span> Condition Report
+    </div>
+    <div class="condition-panel" id="condition-panel-${v.id}">
+      ${rows}
+      <div style="margin-top:5px;font-size:10px;color:#1565c0;cursor:pointer">View full report →</div>
+    </div>`;
+}
+
+function toggleCondition(id) {
+  const panel = document.getElementById(`condition-panel-${id}`);
+  const arrow = document.getElementById(`cond-arrow-${id}`);
+  if (!panel) return;
+  const open = panel.classList.toggle('open');
+  if (arrow) arrow.textContent = open ? '▼' : '▶';
+}
+
+// ─── BID MOVEMENT ────────────────────────────────────────
+function getBidMovement(v, full) {
+  const saved = savedPrices[v.id];
+  if (saved === undefined || !v.priceNum) return '';
+  const delta = v.priceNum - saved;
+  if (delta <= 0) return '';
+  const cls = full ? 'bid-movement-full' : 'bid-movement';
+  return `<div class="${cls}">↑ $${delta.toLocaleString()} since saved</div>`;
+}
+
+// ─── DRAWER ──────────────────────────────────────────────
+function toggleDrawer() {
+  drawerOpen = !drawerOpen;
+  document.getElementById('drawer').classList.toggle('open', drawerOpen);
+  renderDrawer();
+}
+
+function renderDrawer() {
+  const body = document.getElementById('drawer-body');
+  const items = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
+  if (items.length === 0) {
+    body.innerHTML = `<div class="drawer-empty"><div class="icon">♥</div><p>Save vehicles to track them here. Click <strong>♥ Save</strong> on any listing.</p></div>`;
+    return;
+  }
+  body.innerHTML = items.map(v => {
+    const note = notes[v.id];
+    return `
+    <div class="wl-card" id="wl-card-${v.id}">
+      <div class="wl-card-top">
+        <div class="wl-thumb" style="background:linear-gradient(135deg,${v.color},#bbb)"></div>
+        <div class="wl-info">
+          <div class="wl-name-row">
+            <div class="wl-name">${v.name}</div>
+            <span class="note-toggle ${note ? 'has-note' : ''}" onclick="toggleNote(${v.id})" title="${note ? 'Show note' : 'Add note'}">📝</span>
+          </div>
+          <div class="wl-meta">${v.miles}</div>
+          <div class="wl-vin">${v.vin}</div>
+        </div>
+      </div>
+      ${note
+        ? `<div class="note-preview" id="note-preview-${v.id}">"${note}" <div class="note-actions"><span class="note-edit" onclick="editNote(${v.id})">Edit</span></div></div>`
+        : `<div class="note-preview" id="note-preview-${v.id}"></div>`
+      }
+      <div class="note-input-wrap" id="note-input-wrap-${v.id}">
+        <textarea class="note-input" id="note-input-${v.id}" rows="2" placeholder="Add a private note...">${note || ''}</textarea>
+        <button class="note-save-btn" onclick="saveNote(${v.id})">Save</button>
+      </div>
+      ${!note ? `<span class="add-note-link" id="add-note-link-${v.id}" onclick="showNoteInput(${v.id})">+ add a note</span>` : ''}
+      ${getLabelChip(v.id, false) || `<span class="add-label-link" onclick="event.stopPropagation();openLabelPicker(event,${v.id})">+ add label</span>`}
+      ${getMatchedSearchTag(v, false)}
+      ${getRelistedBadge(v, false)}
+      ${v.urgency === 'urgent' ? `<div class="expiring-badge">⏰ Ending Soon</div>` : ''}
+      ${getDemandSignal(v, false)}
+      ${getBidMovement(v, false)}
+      <div class="wl-price-row">
+        <span>Bid: <strong>${v.price}</strong></span>
+        <span class="vehicle-time time-${v.urgency}">${v.time}</span>
+      </div>
+      ${getRetailSpread(v, false)}
+      ${getComps(v, false)}
+      <div class="wl-actions">
+        <button class="wl-bid-btn">${v.label}</button>
+        <button class="wl-icon-btn" onclick="showAlert(event, ${v.id})">🔔</button>
+        <button class="wl-icon-btn" onclick="removeVehicle(${v.id})">✕</button>
+      </div>
+    </div>
+  `}).join('');
+}
+
+// ─── NOTES ───────────────────────────────────────────────
+function toggleNote(id) {
+  const preview = document.getElementById(`note-preview-${id}`);
+  const inputWrap = document.getElementById(`note-input-wrap-${id}`);
+  if (!notes[id]) {
+    showNoteInput(id);
+    return;
+  }
+  if (preview) preview.classList.toggle('visible');
+}
+
+function showNoteInput(id) {
+  const inputWrap = document.getElementById(`note-input-wrap-${id}`);
+  const addLink = document.getElementById(`add-note-link-${id}`);
+  const preview = document.getElementById(`note-preview-${id}`);
+  if (inputWrap) { inputWrap.classList.add('visible'); inputWrap.style.display = 'block'; }
+  if (addLink) addLink.style.display = 'none';
+  if (preview) preview.classList.remove('visible');
+}
+
+function editNote(id) {
+  const preview = document.getElementById(`note-preview-${id}`);
+  const inputWrap = document.getElementById(`note-input-wrap-${id}`);
+  const input = document.getElementById(`note-input-${id}`);
+  if (preview) preview.classList.remove('visible');
+  if (inputWrap) { inputWrap.classList.add('visible'); inputWrap.style.display = 'block'; }
+  if (input) { input.value = notes[id] || ''; input.focus(); }
+}
+
+function saveNote(id) {
+  const input = document.getElementById(`note-input-${id}`);
+  if (!input) return;
+  const val = input.value.trim();
+  if (val) {
+    notes[id] = val;
+  } else {
+    delete notes[id];
+  }
+  renderDrawer();
+  renderFullPage();
+}
+
+// ─── REMOVE ──────────────────────────────────────────────
+function removeVehicle(id) {
+  removedVehicle = id;
+  watchlist.delete(id);
+  updateCount();
+  renderDrawer();
+  renderGrid();
+  renderFullPage();
+  showUndoToast();
+}
+
+function showUndoToast() {
+  const toast = document.getElementById('undo-toast');
+  toast.classList.add('show');
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => { toast.classList.remove('show'); removedVehicle = null; }, 4000);
+}
+
+function undoRemove() {
+  if (removedVehicle !== null) {
+    watchlist.add(removedVehicle);
+    removedVehicle = null;
+    updateCount();
+    renderDrawer();
+    renderGrid();
+    renderFullPage();
+  }
+  document.getElementById('undo-toast').classList.remove('show');
+}
+
+// ─── ALERT POPOVER ───────────────────────────────────────
+function showAlert(e, id) {
+  e.stopPropagation();
+  const pop = document.getElementById('alert-popover');
+  pop.style.top = (e.clientY - 160) + 'px';
+  pop.style.left = (e.clientX - 210) + 'px';
+  pop.classList.add('show');
+  document.addEventListener('click', () => pop.classList.remove('show'), { once: true });
+}
+
+function saveAlert() {
+  const val = document.getElementById('alert-input').value;
+  document.getElementById('alert-popover').classList.remove('show');
+  if (val) alert(`Alert set! You'll be notified if the price drops below $${parseInt(val).toLocaleString()}.`);
+}
+
+// ─── FULL WATCHLIST PAGE ─────────────────────────────────
+function openFullPage() {
+  document.getElementById('wl-page').classList.add('active');
+  document.getElementById('wl-backdrop').classList.add('active');
+  document.querySelector('.nav').classList.add('nav-wl-active');
+  document.body.style.overflow = 'hidden';
+  renderFullPage();
+}
+
+function closeFullPage() {
+  document.getElementById('wl-page').classList.remove('active');
+  document.getElementById('wl-backdrop').classList.remove('active');
+  document.querySelector('.nav').classList.remove('nav-wl-active');
+  document.body.style.overflow = '';
+}
+
+function setMarginTarget(val) {
+  marginTarget = parseInt(val, 10) || 0;
+  const hint = document.getElementById('margin-target-hint');
+  if (hint) {
+    const items = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
+    const matching = items.filter(v => v.retailValue && (v.retailValue - v.priceNum) >= marginTarget).length;
+    hint.textContent = marginTarget > 0 ? `${matching} of ${items.length} meet this goal` : '';
+  }
+  renderFullPage();
+}
+
+function switchWlTab(tab) {
+  wlTab = tab;
+  selectedIds.clear();
+  updateBulkBar();
+  const btns = document.querySelectorAll('#wl-tab-bar .tab-pill');
+  btns.forEach((btn, i) => {
+    btn.classList.toggle('tab-active', (tab === 'active' && i === 0) || (tab === 'closed' && i === 1));
+  });
+  renderFullPage();
+}
+
+// ─── BULK ACTIONS ─────────────────────────────────────────
+function toggleSelectionMode() {
+  selectionMode = !selectionMode;
+  selectedIds.clear();
+  const btn = document.getElementById('select-mode-btn');
+  if (btn) btn.classList.toggle('active', selectionMode);
+  if (!selectionMode) {
+    updateBulkBar();
+  }
+  renderFullPage();
+}
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  updateBulkBar();
+  // Toggle selected class on the card without full re-render
+  const card = document.querySelector(`.wl-full-card[data-id="${id}"]`);
+  if (card) card.classList.toggle('selected', selectedIds.has(id));
+  const cb = document.getElementById(`cb-${id}`);
+  if (cb) cb.checked = selectedIds.has(id);
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const countEl = document.getElementById('bulk-bar-count');
+  if (!bar) return;
+  const n = selectedIds.size;
+  const show = selectionMode && n > 0;
+  bar.classList.toggle('show', show);
+  if (countEl) countEl.textContent = n + ' selected';
+}
+
+function selectAllVisible() {
+  const items = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
+  items.forEach(v => selectedIds.add(v.id));
+  updateBulkBar();
+  renderFullPage();
+}
+
+function removeSelected() {
+  selectedIds.forEach(id => watchlist.delete(id));
+  selectedIds.clear();
+  selectionMode = false;
+  const btn = document.getElementById('select-mode-btn');
+  if (btn) btn.classList.remove('active');
+  updateBulkBar();
+  updateCount();
+  renderGrid();
+  renderDrawer();
+  renderFullPage();
+  showUndoToast();
+}
+
+function renderFullPage() {
+  const grid = document.getElementById('wl-grid');
+  const empty = document.getElementById('wl-empty');
+
+  // Closed tab — show closed vehicles
+  if (wlTab === 'closed') {
+    grid.style.display = 'grid';
+    empty.style.display = 'none';
+    const resultsEl = document.getElementById('wl-results-count');
+    if (resultsEl) resultsEl.textContent = closedVehicles.length + ' results';
+    grid.innerHTML = closedVehicles.map(v => {
+      const condDots = v.conditions.map(c => `<span class="cond-dot" style="background:${c}"></span>`).join('');
+      const won = v.outcome === 'won';
+      return `
+      <div class="wl-full-card ${won ? 'closed-won' : 'closed-lost'}">
+        <div class="closed-outcome-banner ${won ? 'outcome-won' : 'outcome-lost'}">
+          ${won ? '✓ Won' : '✕ Not Won'} — Auction Closed
+        </div>
+        <div class="wl-full-card-photo" style="background:linear-gradient(160deg,${v.color} 0%,#c8cdd4 100%);${won ? '' : 'filter:grayscale(60%)'}">
+          <span style="font-size:22px;opacity:0.5">🚗</span>
+        </div>
+        <div class="wl-full-card-body">
+          <div class="wl-full-name">${v.name}</div>
+          <div class="wl-full-trim">${v.trim}</div>
+          <div class="wl-full-mileage">${v.miles}</div>
+          <div class="condition-dots">${condDots}</div>
+          <div class="wl-full-vin">${v.vin}</div>
+          <div class="closed-final-price">Final price: <strong>${v.finalPrice}</strong></div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:8px">Saved at ${v.savedAt}</div>
+          <div class="card-footer"><span>📍 ${v.location}</span></div>
+          ${won ? `<div style="margin-top:8px"><button class="wl-full-bid" style="background:#2e7d32">View Purchase</button></div>` : `<div style="margin-top:8px"><button class="wl-full-bid" style="background:#777;cursor:default" disabled>Auction Ended</button></div>`}
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  let items = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
+  if (activeLabelFilter) items = items.filter(v => vehicleLabels[v.id] === activeLabelFilter);
+  if (marginTarget > 0) items = items.filter(v => v.retailValue && (v.retailValue - v.priceNum) >= marginTarget);
+  if (activeMatchedSearchFilter) items = items.filter(v => !!v.matchedSearch);
+
+  const countEl = document.getElementById('wl-count');
+  const resultsEl = document.getElementById('wl-results-count');
+  const label = items.length + ' vehicle' + (items.length !== 1 ? 's' : '');
+  if (countEl) countEl.textContent = label;
+  if (resultsEl) resultsEl.textContent = items.length + ' results';
+  renderLabelFilter();
+  // Update matched search count hint
+  const allWlItems = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
+  const matchCount = allWlItems.filter(v => !!v.matchedSearch).length;
+  const msCount = document.getElementById('matched-search-count');
+  if (msCount) msCount.textContent = matchCount > 0 ? `${matchCount} vehicle${matchCount !== 1 ? 's' : ''} match a saved search` : '';
+  const msCb = document.getElementById('matched-search-filter-cb');
+  if (msCb) msCb.checked = activeMatchedSearchFilter;
+
+  if (items.length === 0) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  grid.style.display = 'grid';
+  empty.style.display = 'none';
+
+  grid.innerHTML = items.map(v => {
+    const note = notes[v.id];
+    const condDots = v.conditions.map(c => `<span class="cond-dot" style="background:${c}"></span>`).join('');
+    const reserveBadge = v.reserve === 'no-reserve'
+      ? `<span class="badge-no-reserve">No Reserve</span>`
+      : v.reserve === 'low-reserve'
+      ? `<span class="badge-low-reserve">Low Reserve</span>`
+      : '';
+    const timerColor = v.urgency === 'urgent' ? '#d44' : v.urgency === 'soon' ? '#e8a000' : '#555';
+    const isSelected = selectedIds.has(v.id);
+    return `
+    <div class="wl-full-card${isSelected ? ' selected' : ''}" data-id="${v.id}" onclick="${selectionMode ? `toggleSelect(${v.id})` : ''}">
+      <div class="wl-full-card-photo" style="background:linear-gradient(160deg,${v.color} 0%,#c8cdd4 100%);cursor:${selectionMode ? 'pointer' : 'default'}">
+        <span style="font-size:22px;opacity:0.5">🚗</span>
+        ${selectionMode
+          ? `<div class="card-select-overlay"><input type="checkbox" id="cb-${v.id}" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation();toggleSelect(${v.id})"></div>`
+          : `<button class="card-menu-btn">···</button>`
+        }
+        ${reserveBadge}
+      </div>
+      <div class="wl-full-card-body">
+        <div class="wl-full-name">${v.name}</div>
+        <div class="wl-full-trim">${v.trim}</div>
+        <div class="wl-full-mileage">${v.miles}</div>
+        <div class="condition-dots">${condDots}</div>
+        <div class="wl-full-vin">${v.vin}</div>
+        ${getConditionReportHtml(v)}
+        <div class="card-timer">
+          <span>⏱</span>
+          <span class="timer-label">Time Remaining</span>
+          <span style="font-weight:600;color:${timerColor}">${v.time}</span>
+        </div>
+        ${note
+          ? `<div class="wl-full-note"><span class="wl-note-text">"${note}"</span><span class="wl-note-edit" onclick="editNoteFull(${v.id})">Edit</span></div>`
+          : `<span class="add-note-full" onclick="addNoteFull(${v.id})">+ add a note</span>`
+        }
+        ${getLabelChip(v.id, true) || `<span class="add-label-link-full" onclick="event.stopPropagation();openLabelPicker(event,${v.id})">🏷 add label</span>`}
+        ${getMatchedSearchTag(v, true)}
+        ${getRelistedBadge(v, true)}
+        ${v.urgency === 'urgent' ? `<div class="expiring-badge-full">⏰ Ending Soon — under 1 hour</div>` : ''}
+        ${getDemandSignal(v, true)}
+        ${getBidMovement(v, true)}
+        <div class="bid-area">
+          ${v.reserve === 'no-reserve' ? '<div class="no-reserve-pill">✓ No Reserve</div>' : ''}
+          <div>
+            <span class="current-bid-label">Current Bid </span>
+            <span class="current-bid-amount">${v.price}</span>
+          </div>
+        </div>
+        ${getRetailSpread(v, true)}
+        ${getComps(v, true)}
+        <div class="card-footer">
+          <span>📍 ${v.location}</span>
+          ${v.topSeller ? '<span class="top-seller-badge">⭐ Top Seller</span>' : ''}
+        </div>
+        <div class="wl-full-actions">
+          <button class="wl-full-bid">${v.label}</button>
+          <button class="wl-full-icon" onclick="showAlert(event, ${v.id})">🔔</button>
+          <button class="wl-full-icon" onclick="removeVehicle(${v.id})">✕</button>
+        </div>
+      </div>
+    </div>
+  `}).join('');
+  renderSummaryBar();
+}
+
+function editNoteFull(id) {
+  // Sync to drawer note edit flow
+  openFullPage(); // already open
+  notes[id] = notes[id] || '';
+  const note = prompt('Edit note:', notes[id]);
+  if (note !== null) {
+    if (note.trim()) notes[id] = note.trim();
+    else delete notes[id];
+    renderDrawer();
+    renderFullPage();
+  }
+}
+
+function addNoteFull(id) {
+  editNoteFull(id);
+}
+
+// ─── SIDEBAR TOGGLE ──────────────────────────────────────
+function toggleSidebar(id) {
+  const sidebar = document.getElementById(id);
+  const btn = sidebar.querySelector('.sidebar-collapse-btn');
+  sidebar.classList.toggle('collapsed');
+  btn.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
+}
+
+// ─── SUMMARY BAR ─────────────────────────────────────────
+function renderSummaryBar() {
+  const bar = document.getElementById('wl-summary-bar');
+  if (!bar) return;
+  const items = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
+  if (items.length === 0 || wlTab === 'closed') {
+    bar.style.display = 'none';
+    return;
+  }
+  bar.style.display = 'flex';
+  const today = items.filter(v => v.urgency === 'urgent' || v.urgency === 'soon').length;
+  const tomorrow = items.filter(v => v.time === 'Tomorrow').length;
+  const exposure = items.reduce((sum, v) => sum + (v.priceNum || 0), 0);
+  document.getElementById('sum-today').textContent = today;
+  document.getElementById('sum-tomorrow').textContent = tomorrow;
+  document.getElementById('sum-exposure').textContent = '$' + exposure.toLocaleString();
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+renderGrid();
+updateCount();
+renderLabelFilter();
+</script>
+</body>
+</html>
