@@ -366,14 +366,19 @@
   .na-select-btn { font-size: 12px; border: 1.5px solid #1a1a2e; border-radius: 5px; padding: 5px 12px; background: #fff; color: #1a1a2e; cursor: pointer; font-weight: 600; }
   .na-select-btn:hover { background: #f5f5f5; }
   .na-list { display: flex; flex-direction: column; gap: 6px; }
-  .na-row { display: flex; align-items: center; gap: 12px; background: #fff9f7; border: 1px solid #fdd; border-left: 3px solid #d44; border-radius: 6px; padding: 8px 12px; }
-  .na-row.soon { border-left-color: #e8a000; background: #fffbf5; border-color: #fdecc0; }
+  .na-row { display: flex; align-items: center; gap: 14px; background: #fff9f7; border: 1px solid #fdd; border-left: 4px solid #d44; border-radius: 6px; padding: 10px 14px; }
+  .na-timer-block { display: flex; flex-direction: column; align-items: center; min-width: 56px; flex-shrink: 0; }
+  .na-timer-label { font-size: 9px; color: #aaa; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 1px; }
+  .na-timer-val { font-weight: 800; font-size: 16px; color: #d44; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+  .na-divider { width: 1px; height: 32px; background: #eee; flex-shrink: 0; }
   .na-name { font-weight: 600; font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .na-bid { font-size: 12px; color: #555; white-space: nowrap; }
-  .na-timer { font-weight: 700; font-size: 13px; color: #d44; min-width: 64px; text-align: right; }
-  .na-timer.soon { color: #e8a000; }
-  .na-bid-btn { background: #1a1a2e; color: #fff; border: none; border-radius: 5px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .na-bid-btn:hover { background: #2d2d4e; }
+  .na-bid-amount { font-size: 12px; color: #555; white-space: nowrap; min-width: 80px; }
+  .na-hb-win { display: inline-flex; align-items: center; gap: 4px; background: #e8f5e9; color: #2e7d32; border-radius: 4px; padding: 4px 10px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .na-hb-lose { display: inline-flex; align-items: center; gap: 4px; background: #fdecea; color: #d44; border-radius: 4px; padding: 4px 10px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .na-bid-now-btn { background: #E8470A; color: #fff; border: none; border-radius: 5px; padding: 7px 18px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .na-bid-now-btn:hover { background: #c93d09; }
+  .na-raise-btn { background: #fff; border: 1.5px solid #555; color: #333; border-radius: 5px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .na-raise-btn:hover { background: #f5f5f5; }
   .na-checkbox { cursor: pointer; accent-color: #1a1a2e; width: 15px; height: 15px; flex-shrink: 0; }
 
   /* BULK BID BUTTON */
@@ -818,12 +823,12 @@
 <script>
 // ─── DATA ───────────────────────────────────────────────
 const vehicles = [
-  { id: 1, name: '2019 Ford F-150', trim: 'XLT • 4WD • 8cyl', miles: '67,412 miles', vin: '1FTEW1EP5KFA12345', price: '$28,750', priceNum: 28750, bidDelta: 750, retailValue: 34500, watchers: 14, matchedSearch: 'Ford F-150 4WD', comps: {low:26800,high:31200,count:14}, label: 'Bid', time: '00:45:12', urgency: 'urgent', color: '#7a8a9a', reserve: 'no-reserve', conditions: ['#4CAF50','#2196F3'], location: 'Buffalo, NY', topSeller: true, cr: {engine:4,body:3,interior:4,tires:3} },
+  { id: 1, name: '2019 Ford F-150', trim: 'XLT • 4WD • 8cyl', miles: '67,412 miles', vin: '1FTEW1EP5KFA12345', price: '$28,750', priceNum: 28750, bidDelta: 750, retailValue: 34500, watchers: 14, matchedSearch: 'Ford F-150 4WD', comps: {low:26800,high:31200,count:14}, label: 'Bid', time: '00:02:34', urgency: 'urgent', isHighBidder: false, color: '#7a8a9a', reserve: 'no-reserve', conditions: ['#4CAF50','#2196F3'], location: 'Buffalo, NY', topSeller: true, cr: {engine:4,body:3,interior:4,tires:3} },
   { id: 2, name: '2021 Honda Civic', trim: 'LX • FWD • 4cyl', miles: '42,180 miles', vin: '2HGFC2F6XMH123456', price: '$12,400', priceNum: 12400, bidDelta: 0, retailValue: 17200, watchers: 3, comps: {low:11400,high:13900,count:22}, label: 'Bid', time: '02:08:44', urgency: 'soon', color: '#9aacba', reserve: 'low-reserve', conditions: ['#4CAF50','#9C27B0'], location: 'Cleveland, OH', topSeller: false, cr: {engine:5,body:4,interior:5,tires:4} },
   { id: 3, name: '2020 Toyota RAV4', trim: 'XLE • AWD • 4cyl', miles: '31,056 miles', vin: '2T3BWRFV5LW123890', price: '$22,000', priceNum: 22000, bidDelta: 0, retailValue: 29800, watchers: 9, matchedSearch: 'Toyota RAV4 AWD Clean', comps: {low:20500,high:24100,count:31}, label: 'Buy Now', time: 'Tomorrow', urgency: 'later', color: '#8a9e7a', reserve: 'no-reserve', conditions: ['#4CAF50','#4CAF50'], location: 'Pittsburgh, PA', topSeller: true, cr: {engine:5,body:5,interior:4,tires:5} },
   { id: 4, name: '2018 Chevrolet Silverado', trim: '1500 LT • 4WD • 8cyl', miles: '89,340 miles', vin: '3GCUYDED5JG123001', price: '$31,200', priceNum: 31200, bidDelta: 1200, retailValue: 36500, watchers: 21, relisted: true, relistCount: 2, comps: {low:28900,high:33400,count:9}, label: 'Bid', time: 'Tomorrow', urgency: 'later', color: '#aaaaaa', reserve: null, conditions: ['#FF9800','#2196F3'], location: 'Detroit, MI', topSeller: false, cr: {engine:3,body:2,interior:3,tires:2} },
   { id: 5, name: '2022 Nissan Altima', trim: 'SV • FWD • 4cyl', miles: '18,720 miles', vin: '1N4BL4EW3NC123445', price: '$16,500', priceNum: 16500, bidDelta: 0, retailValue: 21000, watchers: 2, comps: {low:15200,high:18000,count:17}, label: 'Buy Now', time: 'Friday', urgency: 'later', color: '#c0baba', reserve: 'no-reserve', conditions: ['#4CAF50','#4CAF50'], location: 'Rochester, NY', topSeller: false, cr: {engine:5,body:5,interior:5,tires:5} },
-  { id: 6, name: '2020 Jeep Grand Cherokee', trim: 'Laredo • 4WD • 6cyl', miles: '54,210 miles', vin: '1C4RJFBG5LC123789', price: '$34,900', priceNum: 34900, bidDelta: 2400, retailValue: 42000, watchers: 31, matchedSearch: 'Jeep Grand Cherokee 4WD', comps: {low:31500,high:37200,count:11}, label: 'Bid', time: '00:58:31', urgency: 'urgent', color: '#909090', reserve: 'low-reserve', conditions: ['#FF9800','#9C27B0'], location: 'Syracuse, NY', topSeller: true, cr: {engine:4,body:3,interior:3,tires:4} },
+  { id: 6, name: '2020 Jeep Grand Cherokee', trim: 'Laredo • 4WD • 6cyl', miles: '54,210 miles', vin: '1C4RJFBG5LC123789', price: '$34,900', priceNum: 34900, bidDelta: 2400, retailValue: 42000, watchers: 31, matchedSearch: 'Jeep Grand Cherokee 4WD', comps: {low:31500,high:37200,count:11}, label: 'Bid', time: '00:04:11', urgency: 'urgent', isHighBidder: true, color: '#909090', reserve: 'low-reserve', conditions: ['#FF9800','#9C27B0'], location: 'Syracuse, NY', topSeller: true, cr: {engine:4,body:3,interior:3,tires:4} },
   { id: 7, name: '2021 Hyundai Tucson', trim: 'SEL • AWD • 4cyl', miles: '28,900 miles', vin: 'KM8J3CA46MU123234', price: '$19,800', priceNum: 19800, bidDelta: 0, retailValue: 26500, watchers: 6, relisted: true, relistCount: 1, comps: {low:18200,high:21500,count:19}, label: 'Buy Now', time: '03:14:05', urgency: 'soon', color: '#b0b5be', reserve: 'no-reserve', conditions: ['#4CAF50','#4CAF50'], location: 'Albany, NY', topSeller: false, cr: {engine:5,body:4,interior:4,tires:4} },
   { id: 8, name: '2019 BMW 3 Series', trim: '330i • RWD • 4cyl', miles: '47,620 miles', vin: 'WBA5R7C56KAE12345', price: '$27,500', priceNum: 27500, bidDelta: 500, retailValue: 35000, watchers: 18, comps: {low:24800,high:29600,count:8}, label: 'Bid', time: 'Thursday', urgency: 'later', color: '#a0a8b0', reserve: null, conditions: ['#4CAF50','#2196F3'], location: 'Boston, MA', topSeller: true, cr: {engine:4,body:5,interior:4,tires:3} },
 ];
@@ -1532,28 +1537,46 @@ function addNoteFull(id) {
 }
 
 // ─── NEEDS ATTENTION ─────────────────────────────────────
+function isUnder5Min(timeStr) {
+  const parts = timeStr.split(':');
+  if (parts.length !== 3) return false;
+  const [h, m, s] = parts.map(Number);
+  return (h * 3600 + m * 60 + s) < 300;
+}
+
 function renderNeedsAttention(items) {
   const section = document.getElementById('needs-attention-section');
   const list = document.getElementById('na-list');
   const countEl = document.getElementById('na-count');
   if (!section || wlTab === 'closed') { section && (section.style.display = 'none'); return; }
 
-  const urgent = items.filter(v => v.urgency === 'urgent' || v.urgency === 'soon');
-  if (urgent.length === 0) { section.style.display = 'none'; return; }
+  const critical = items.filter(v => isUnder5Min(v.time));
+  if (critical.length === 0) { section.style.display = 'none'; return; }
 
   section.style.display = 'block';
-  countEl.textContent = urgent.length;
+  countEl.textContent = critical.length;
 
-  list.innerHTML = urgent.map(v => {
-    const isUrgent = v.urgency === 'urgent';
+  list.innerHTML = critical.map(v => {
     const isSelected = selectedIds.has(v.id);
+    const isHB = !!v.isHighBidder;
+    const hbBadge = isHB
+      ? `<span class="na-hb-win">✓ High Bidder</span>`
+      : `<span class="na-hb-lose">↑ Not Winning</span>`;
+    const cta = isHB
+      ? `<button class="na-raise-btn">Raise Max</button>`
+      : `<button class="na-bid-now-btn">Bid Now</button>`;
     return `
-    <div class="na-row${isUrgent ? '' : ' soon'}">
+    <div class="na-row">
       ${selectionMode ? `<input type="checkbox" class="na-checkbox" ${isSelected ? 'checked' : ''} onclick="toggleSelect(${v.id})">` : ''}
+      <div class="na-timer-block">
+        <span class="na-timer-label">Time Left</span>
+        <span class="na-timer-val">${v.time}</span>
+      </div>
+      <div class="na-divider"></div>
       <span class="na-name">${v.name}</span>
-      <span class="na-bid">Current bid: ${v.price}</span>
-      <span class="na-timer${isUrgent ? '' : ' soon'}">${v.time}</span>
-      <button class="na-bid-btn">${v.label}</button>
+      <span class="na-bid-amount">Bid: <strong>${v.price}</strong></span>
+      ${hbBadge}
+      ${cta}
     </div>`;
   }).join('');
 }
@@ -1565,7 +1588,7 @@ function selectAllUrgent() {
     if (btn) btn.classList.add('active');
   }
   const items = [...watchlist].map(id => vehicles.find(v => v.id === id)).filter(Boolean);
-  items.filter(v => v.urgency === 'urgent' || v.urgency === 'soon').forEach(v => selectedIds.add(v.id));
+  items.filter(v => isUnder5Min(v.time)).forEach(v => selectedIds.add(v.id));
   updateBulkBar();
   renderFullPage();
 }
