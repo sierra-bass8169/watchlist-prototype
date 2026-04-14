@@ -76,15 +76,15 @@
   .note-toggle.has-note { opacity: 1; }
   .wl-meta { color: #888; font-size: 10px; }
   .wl-vin { color: #bbb; font-size: 9px; font-family: monospace; }
-  .note-preview { background: #fffbe6; border: 1px solid #f0e68c; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #7a6800; margin-bottom: 6px; line-height: 1.5; display: none; }
+  .note-preview { background: #f8f8f6; border: 1px solid #e8e8e4; border-radius: 4px; padding: 5px 8px; font-size: 10px; color: #666; margin-bottom: 6px; line-height: 1.5; display: none; }
   .note-preview.visible { display: block; }
   .note-preview .note-actions { display: flex; justify-content: flex-end; margin-top: 3px; gap: 8px; }
   .note-preview .note-edit { color: #aaa; cursor: pointer; font-size: 9px; }
   .note-preview .note-edit:hover { color: #555; }
   .note-input-wrap { display: none; margin-bottom: 6px; }
   .note-input-wrap.visible { display: block; }
-  .note-input { width: 100%; border: 1px solid #f0e68c; border-radius: 4px; padding: 5px 7px; font-size: 10px; font-family: inherit; resize: none; background: #fffbe6; color: #7a6800; outline: none; }
-  .note-input:focus { border-color: #e8c800; }
+  .note-input { width: 100%; border: 1px solid #e8e8e4; border-radius: 4px; padding: 5px 7px; font-size: 10px; font-family: inherit; resize: none; background: #f8f8f6; color: #666; outline: none; }
+  .note-input:focus { border-color: #bbb; }
   .note-save-btn { font-size: 9px; background: #1a1a2e; color: #fff; border: none; border-radius: 3px; padding: 3px 8px; cursor: pointer; margin-top: 3px; float: right; }
   .add-note-link { color: #ccc; font-size: 10px; cursor: pointer; margin-bottom: 6px; display: block; }
   .add-note-link:hover { color: #888; }
@@ -268,11 +268,11 @@
   .closed-final-price strong { color: #1a1a1a; }
 
   /* DEMAND SIGNAL */
-  .demand-signal { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
-  .demand-signal-full { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
-  .demand-high { background: #fdecea; color: #b71c1c; }
-  .demand-med { background: #fff8e1; color: #e65100; }
-  .demand-low { background: #f5f5f5; color: #757575; }
+  .demand-signal { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; margin-bottom: 4px; }
+  .demand-signal-full { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; margin-bottom: 5px; }
+  .demand-high { color: #555; }
+  .demand-med { color: #777; }
+  .demand-low { color: #999; }
 
   /* RETAIL SPREAD */
   .retail-spread { font-size: 11px; color: #555; margin-bottom: 4px; }
@@ -290,21 +290,21 @@
   .comps-above { color: #d44; font-weight: 600; }
 
   /* MATCHED SEARCH TAG */
-  .matched-search-tag { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
-  .matched-search-tag-full { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+  .matched-search-tag { display: inline-flex; align-items: center; gap: 4px; background: #f0f0f0; color: #888; font-size: 10px; font-weight: 500; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .matched-search-tag-full { display: inline-flex; align-items: center; gap: 4px; background: #f0f0f0; color: #888; font-size: 11px; font-weight: 500; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
 
   /* MATCHED SEARCH TAG */
-  .matched-search-tag { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 10px; font-weight: 600; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
-  .matched-search-tag-full { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+  .matched-search-tag { display: inline-flex; align-items: center; gap: 4px; background: #f0f0f0; color: #888; font-size: 10px; font-weight: 500; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .matched-search-tag-full { display: inline-flex; align-items: center; gap: 4px; background: #f0f0f0; color: #888; font-size: 11px; font-weight: 500; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
 
   /* RE-LIST BADGE */
-  .relisted-badge { display: inline-flex; align-items: center; gap: 4px; background: #e8eaf6; color: #283593; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
-  .relisted-badge-full { display: inline-flex; align-items: center; gap: 4px; background: #e8eaf6; color: #283593; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
+  .relisted-badge { display: inline-flex; align-items: center; gap: 4px; background: #f0f0f0; color: #888; font-size: 10px; font-weight: 500; border-radius: 3px; padding: 2px 6px; margin-bottom: 4px; }
+  .relisted-badge-full { display: inline-flex; align-items: center; gap: 4px; background: #f0f0f0; color: #888; font-size: 11px; font-weight: 500; border-radius: 4px; padding: 3px 8px; margin-bottom: 5px; }
 
   /* CONDITION REPORT EXPAND */
-  .condition-toggle { font-size: 11px; color: #1565c0; cursor: pointer; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
+  .condition-toggle { font-size: 11px; color: #666; cursor: pointer; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
   .condition-toggle:hover { text-decoration: underline; }
-  .condition-panel { display: none; background: #f8f9ff; border: 1px solid #dde4f5; border-radius: 5px; padding: 8px 10px; margin-bottom: 6px; font-size: 11px; }
+  .condition-panel { display: none; background: #f8f8f8; border: 1px solid #e8e8e8; border-radius: 5px; padding: 8px 10px; margin-bottom: 6px; font-size: 11px; }
   .condition-panel.open { display: block; }
   .cond-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
   .cond-row:last-child { margin-bottom: 0; }
@@ -315,17 +315,17 @@
   .wl-full-card-photo { height: 155px; background: linear-gradient(135deg, #ddd, #ccc); display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 20px; position: relative; }
   .card-menu-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.45); color: #fff; border: none; border-radius: 4px; padding: 2px 7px; font-size: 13px; cursor: pointer; letter-spacing: 1px; }
   .badge-no-reserve { position: absolute; bottom: 8px; left: 8px; background: #222; color: #fff; border-radius: 4px; padding: 3px 8px; font-size: 10px; font-weight: 600; }
-  .badge-low-reserve { position: absolute; bottom: 8px; left: 8px; background: #7B1FA2; color: #fff; border-radius: 4px; padding: 3px 8px; font-size: 10px; font-weight: 600; }
+  .badge-low-reserve { position: absolute; bottom: 8px; left: 8px; background: #555; color: #fff; border-radius: 4px; padding: 3px 8px; font-size: 10px; font-weight: 600; }
   .wl-full-card-body { padding: 10px 12px; }
   .wl-full-name { font-weight: 700; font-size: 14px; cursor: pointer; margin-bottom: 1px; line-height: 1.2; }
   .wl-full-name:hover { text-decoration: underline; }
   .wl-full-trim { color: #888; font-size: 11px; margin-bottom: 3px; }
-  .wl-full-mileage { color: #1565C0; font-size: 12px; font-weight: 500; margin-bottom: 5px; }
+  .wl-full-mileage { color: #888; font-size: 12px; font-weight: 400; margin-bottom: 5px; }
   .condition-dots { display: flex; gap: 4px; align-items: center; margin-bottom: 5px; }
   .cond-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
   .card-timer { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; margin-bottom: 6px; }
   .timer-label { color: #888; font-size: 10px; }
-  .wl-full-note { background: #fffbe6; border: 1px solid #f0e68c; border-radius: 4px; padding: 5px 8px; font-size: 11px; color: #7a6800; margin-bottom: 6px; line-height: 1.5; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+  .wl-full-note { background: #f8f8f6; border: 1px solid #e8e8e4; border-radius: 4px; padding: 5px 8px; font-size: 11px; color: #666; margin-bottom: 6px; line-height: 1.5; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
   .wl-note-text { flex: 1; }
   .wl-note-edit { color: #aaa; cursor: pointer; font-size: 10px; flex-shrink: 0; }
   .wl-note-edit:hover { color: #555; }
@@ -343,6 +343,24 @@
   .wl-full-bid:hover { background: #2d2d4e; }
   .wl-full-icon { background: none; border: 1px solid #ddd; border-radius: 5px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
   .wl-full-icon:hover { background: #f5f5f5; }
+
+  /* CARD PRICE + TIME ROW */
+  .card-price-time { display: flex; justify-content: space-between; align-items: flex-end; padding: 8px 0; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; margin: 6px 0 8px; }
+  .cpt-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+  .cpt-amount { font-weight: 700; font-size: 15px; color: #1a1a1a; }
+  .cpt-time { font-weight: 700; font-size: 15px; }
+
+  /* FULL CARD META ROW */
+  .wl-full-meta-row { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #888; margin-bottom: 4px; flex-wrap: wrap; }
+
+  /* SIGNAL ROW */
+  .signal-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 6px; }
+
+  /* TIMER URGENCY */
+  .vehicle-time { font-weight: 600; font-size: 12px; }
+  .time-urgent { color: #d44; }
+  .time-soon { color: #e8a000; }
+  .time-later { color: #555; }
 </style>
 </head>
 <body>
@@ -1101,16 +1119,14 @@ function renderDrawer() {
       <div class="wl-card-top">
         <div class="wl-thumb" style="background:linear-gradient(135deg,${v.color},#bbb)"></div>
         <div class="wl-info">
-          <div class="wl-name-row">
-            <div class="wl-name">${v.name}</div>
-            <span class="note-toggle ${note ? 'has-note' : ''}" onclick="toggleNote(${v.id})" title="${note ? 'Show note' : 'Add note'}">📝</span>
-          </div>
-          <div class="wl-meta">${v.miles}</div>
+          <div class="wl-name">${v.name}</div>
+          <div class="wl-meta">${v.trim} · ${v.miles}</div>
           <div class="wl-vin">${v.vin}</div>
         </div>
       </div>
+      ${getLabelChip(v.id, false) || `<span class="add-label-link" onclick="event.stopPropagation();openLabelPicker(event,${v.id})">+ add label</span>`}
       ${note
-        ? `<div class="note-preview" id="note-preview-${v.id}">"${note}" <div class="note-actions"><span class="note-edit" onclick="editNote(${v.id})">Edit</span></div></div>`
+        ? `<div class="note-preview visible" id="note-preview-${v.id}">"${note}" <div class="note-actions"><span class="note-edit" onclick="editNote(${v.id})">Edit</span></div></div>`
         : `<div class="note-preview" id="note-preview-${v.id}"></div>`
       }
       <div class="note-input-wrap" id="note-input-wrap-${v.id}">
@@ -1118,18 +1134,15 @@ function renderDrawer() {
         <button class="note-save-btn" onclick="saveNote(${v.id})">Save</button>
       </div>
       ${!note ? `<span class="add-note-link" id="add-note-link-${v.id}" onclick="showNoteInput(${v.id})">+ add a note</span>` : ''}
-      ${getLabelChip(v.id, false) || `<span class="add-label-link" onclick="event.stopPropagation();openLabelPicker(event,${v.id})">+ add label</span>`}
-      ${getMatchedSearchTag(v, false)}
-      ${getRelistedBadge(v, false)}
-      ${v.urgency === 'urgent' ? `<div class="expiring-badge">⏰ Ending Soon</div>` : ''}
-      ${getDemandSignal(v, false)}
-      ${getBidMovement(v, false)}
       <div class="wl-price-row">
-        <span>Bid: <strong>${v.price}</strong></span>
+        <span class="wl-price">${v.price}</span>
         <span class="vehicle-time time-${v.urgency}">${v.time}</span>
       </div>
+      ${getBidMovement(v, false)}
       ${getRetailSpread(v, false)}
-      ${getComps(v, false)}
+      ${getDemandSignal(v, false)}
+      ${getRelistedBadge(v, false)}
+      ${getMatchedSearchTag(v, false)}
       <div class="wl-actions">
         <button class="wl-bid-btn">${v.label}</button>
         <button class="wl-icon-btn" onclick="showAlert(event, ${v.id})">🔔</button>
@@ -1385,7 +1398,6 @@ function renderFullPage() {
 
   grid.innerHTML = items.map(v => {
     const note = notes[v.id];
-    const condDots = v.conditions.map(c => `<span class="cond-dot" style="background:${c}"></span>`).join('');
     const reserveBadge = v.reserve === 'no-reserve'
       ? `<span class="badge-no-reserve">No Reserve</span>`
       : v.reserve === 'low-reserve'
@@ -1406,37 +1418,35 @@ function renderFullPage() {
       <div class="wl-full-card-body">
         <div class="wl-full-name">${v.name}</div>
         <div class="wl-full-trim">${v.trim}</div>
-        <div class="wl-full-mileage">${v.miles}</div>
-        <div class="condition-dots">${condDots}</div>
-        <div class="wl-full-vin">${v.vin}</div>
-        ${getConditionReportHtml(v)}
-        <div class="card-timer">
-          <span>⏱</span>
-          <span class="timer-label">Time Remaining</span>
-          <span style="font-weight:600;color:${timerColor}">${v.time}</span>
+        <div class="wl-full-meta-row">
+          <span>${v.miles}</span>
+          <span>·</span>
+          <span>📍 ${v.location}</span>
+          ${v.topSeller ? '<span class="top-seller-badge">⭐ Top Seller</span>' : ''}
         </div>
+        <div class="wl-full-vin">${v.vin}</div>
+        ${getLabelChip(v.id, true) || `<span class="add-label-link-full" onclick="event.stopPropagation();openLabelPicker(event,${v.id})">🏷 add label</span>`}
         ${note
           ? `<div class="wl-full-note"><span class="wl-note-text">"${note}"</span><span class="wl-note-edit" onclick="editNoteFull(${v.id})">Edit</span></div>`
           : `<span class="add-note-full" onclick="addNoteFull(${v.id})">+ add a note</span>`
         }
-        ${getLabelChip(v.id, true) || `<span class="add-label-link-full" onclick="event.stopPropagation();openLabelPicker(event,${v.id})">🏷 add label</span>`}
-        ${getMatchedSearchTag(v, true)}
-        ${getRelistedBadge(v, true)}
-        ${v.urgency === 'urgent' ? `<div class="expiring-badge-full">⏰ Ending Soon — under 1 hour</div>` : ''}
-        ${getDemandSignal(v, true)}
-        ${getBidMovement(v, true)}
-        <div class="bid-area">
-          ${v.reserve === 'no-reserve' ? '<div class="no-reserve-pill">✓ No Reserve</div>' : ''}
+        <div class="card-price-time">
           <div>
-            <span class="current-bid-label">Current Bid </span>
-            <span class="current-bid-amount">${v.price}</span>
+            <div class="cpt-label">Current Bid</div>
+            <div class="cpt-amount">${v.price}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="cpt-label">Time Left</div>
+            <div class="cpt-time" style="color:${timerColor}">${v.time}</div>
           </div>
         </div>
+        ${getBidMovement(v, true)}
         ${getRetailSpread(v, true)}
-        ${getComps(v, true)}
-        <div class="card-footer">
-          <span>📍 ${v.location}</span>
-          ${v.topSeller ? '<span class="top-seller-badge">⭐ Top Seller</span>' : ''}
+        ${getConditionReportHtml(v)}
+        <div class="signal-row">
+          ${getDemandSignal(v, true)}
+          ${getRelistedBadge(v, true)}
+          ${getMatchedSearchTag(v, true)}
         </div>
         <div class="wl-full-actions">
           <button class="wl-full-bid">${v.label}</button>
