@@ -579,7 +579,6 @@
             <span class="drawer-sort">Sort ▾</span>
             <button class="view-all-btn" onclick="openFullPage()">⤢ View all</button>
           </div>
-          <div id="drawer-matches-banner" style="display:none;margin-top:6px;background:#e3f2fd;color:#1565c0;font-size:11px;font-weight:600;border-radius:4px;padding:4px 8px;cursor:pointer" onclick="openFullPage();setTimeout(()=>{const cb=document.getElementById('matched-search-filter-cb');if(cb){cb.checked=true;toggleMatchedSearchFilter(true);}},150)">🔍 <span id="drawer-matches-count">0</span> New Matches from Saved Searches</div>
         </div>
         <div class="drawer-body" id="drawer-body">
           <div class="drawer-empty">
@@ -1404,6 +1403,9 @@ function renderFullPage() {
   if (activeLabelFilter) items = items.filter(v => vehicleLabels[v.id] === activeLabelFilter);
   if (marginTarget > 0) items = items.filter(v => v.retailValue && (v.retailValue - v.priceNum) >= marginTarget);
   if (activeMatchedSearchFilter) items = items.filter(v => !!v.matchedSearch);
+
+  const activeTabBtn = document.querySelector('#wl-tab-bar .tab-pill');
+  if (activeTabBtn) activeTabBtn.textContent = `Active (${watchlist.size})`;
 
   const countEl = document.getElementById('wl-count');
   const resultsEl = document.getElementById('wl-results-count');
