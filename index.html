@@ -160,47 +160,14 @@
   .nav-wl-active .watchlist-badge .count { background: #E8470A; }
 
   /* Breadcrumb / overlay header */
-  .wl-breadcrumb { background: #E8470A; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-size: 13px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .wl-breadcrumb { background: #E8470A; padding: 5px 20px; display: flex; align-items: center; gap: 10px; font-size: 13px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
   .breadcrumb-link { color: rgba(255,255,255,0.85); cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; }
   .breadcrumb-link:hover { color: #fff; text-decoration: underline; }
   .breadcrumb-sep { color: rgba(255,255,255,0.45); font-size: 16px; line-height: 1; }
-  .breadcrumb-current { color: #fff; font-weight: 700; font-size: 15px; }
+  .breadcrumb-current { color: #fff; font-weight: 700; font-size: 13px; }
   .breadcrumb-count { color: rgba(255,255,255,0.7); font-size: 12px; margin-left: 2px; }
-  .wl-close-btn { margin-left: auto; display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 7px 16px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; }
+  .wl-close-btn { margin-left: auto; display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; }
   .wl-close-btn:hover { background: rgba(255,255,255,0.25); }
-
-  /* HEADER STYLE SWITCHER */
-  .style-switcher { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #1a1a2e; border-radius: 10px; padding: 10px 14px; display: none; flex-direction: column; gap: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
-  .style-switcher.visible { display: flex; }
-  .switcher-label { color: rgba(255,255,255,0.55); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .switcher-btns { display: flex; gap: 6px; }
-  .switcher-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 13px; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.15s; }
-  .switcher-btn:hover { background: rgba(255,255,255,0.2); }
-  .switcher-btn.sw-active { background: #E8470A; border-color: #E8470A; }
-
-  /* Option A — nav transforms */
-  .nav-wl-ctx { display: none; align-items: center; gap: 8px; font-size: 13px; }
-  .nav-wl-ctx.visible { display: flex; }
-  .nav-wl-ctx-link { color: #555; cursor: pointer; font-weight: 500; }
-  .nav-wl-ctx-link:hover { color: #1a1a1a; text-decoration: underline; }
-  .nav-wl-ctx-sep { color: #ccc; }
-  .nav-wl-ctx-title { font-weight: 700; color: #E8470A; }
-  .nav-wl-ctx-count { color: #888; font-size: 12px; }
-  .nav-wl-ctx-close { margin-left: 12px; background: #1a1a2e; color: #fff; border: none; border-radius: 5px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .nav-wl-ctx-close:hover { background: #2d2d4e; }
-
-  /* Option B — slim breadcrumb */
-  .wl-breadcrumb.slim { padding: 5px 20px; }
-  .wl-breadcrumb.slim .breadcrumb-current { font-size: 13px; }
-  .wl-breadcrumb.slim .wl-close-btn { padding: 4px 12px; font-size: 12px; }
-
-  /* Option C — context in search row */
-  .wl-search-ctx { display: none; align-items: center; gap: 6px; white-space: nowrap; padding-right: 12px; border-right: 2px solid #E8470A; flex-shrink: 0; }
-  .wl-search-ctx.visible { display: flex; }
-  .wl-search-ctx-title { font-weight: 700; font-size: 13px; color: #1a1a1a; }
-  .wl-search-ctx-count { font-size: 11px; color: #888; }
-  .wl-search-ctx-close { background: none; border: none; font-size: 15px; color: #888; cursor: pointer; margin-left: 4px; }
-  .wl-search-ctx-close:hover { color: #333; }
 
   /* Search bar + filter pills */
   .wl-search-row { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 12px 20px; display: flex; flex-direction: row; align-items: center; gap: 12px; flex-shrink: 0; }
@@ -419,20 +386,13 @@
 <nav class="nav">
   <div style="display:flex;align-items:center;gap:28px">
     <div class="nav-logo">ACV</div>
-    <div class="nav-links" id="nav-links">
+    <div class="nav-links">
       <a class="nav-link-active">Marketplace</a>
       <a>My ACV</a>
       <a>Market Report</a>
       <a>ACV Capital</a>
       <a>ClearCar</a>
       <a>ACV Transport</a>
-    </div>
-    <div class="nav-wl-ctx" id="nav-wl-ctx">
-      <span class="nav-wl-ctx-link" onclick="closeFullPage()">← Marketplace</span>
-      <span class="nav-wl-ctx-sep">›</span>
-      <span class="nav-wl-ctx-title">♥ My Watchlist</span>
-      <span class="nav-wl-ctx-count" id="nav-wl-ctx-count"></span>
-      <button class="nav-wl-ctx-close" onclick="closeFullPage()">✕ Close</button>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -645,11 +605,6 @@
 
     <!-- Search bar + filter pills (single row) -->
     <div class="wl-search-row">
-      <div class="wl-search-ctx" id="wl-search-ctx">
-        <span class="wl-search-ctx-title">♥ Watchlist</span>
-        <span class="wl-search-ctx-count" id="wl-search-ctx-count"></span>
-        <button class="wl-search-ctx-close" onclick="closeFullPage()">✕</button>
-      </div>
       <div class="wl-search-bar">
         <span class="search-icon">🔍</span>
         <input type="text" class="wl-search-input" placeholder="Search Year, Make, Model, Trim, VIN, Or Auction ID...">
@@ -835,16 +790,6 @@
     </div>
   </div>
 
-  <!-- Header style switcher (prototype tool) -->
-  <div class="style-switcher" id="style-switcher">
-    <span class="switcher-label">Header style</span>
-    <div class="switcher-btns">
-      <button class="switcher-btn sw-active" data-style="original" onclick="applyHeaderStyle('original')">Current</button>
-      <button class="switcher-btn" data-style="A" onclick="applyHeaderStyle('A')">A</button>
-      <button class="switcher-btn" data-style="B" onclick="applyHeaderStyle('B')">B</button>
-      <button class="switcher-btn" data-style="C" onclick="applyHeaderStyle('C')">C</button>
-    </div>
-  </div>
 
 </div>
 
@@ -1327,50 +1272,11 @@ function saveAlert() {
 }
 
 // ─── FULL WATCHLIST PAGE ─────────────────────────────────
-let headerStyle = 'original';
-
-function applyHeaderStyle(style) {
-  headerStyle = style;
-  const breadcrumb = document.getElementById('wl-breadcrumb');
-  const navLinks = document.getElementById('nav-links');
-  const navCtx = document.getElementById('nav-wl-ctx');
-  const searchCtx = document.getElementById('wl-search-ctx');
-  const count = watchlist.size + ' vehicle' + (watchlist.size !== 1 ? 's' : '');
-
-  // Reset
-  breadcrumb.style.display = '';
-  breadcrumb.classList.remove('slim');
-  navLinks.style.display = '';
-  navCtx.classList.remove('visible');
-  searchCtx.classList.remove('visible');
-
-  if (style === 'A') {
-    breadcrumb.style.display = 'none';
-    navLinks.style.display = 'none';
-    navCtx.classList.add('visible');
-    const ctxCount = document.getElementById('nav-wl-ctx-count');
-    if (ctxCount) ctxCount.textContent = '(' + count + ')';
-  } else if (style === 'B') {
-    breadcrumb.classList.add('slim');
-  } else if (style === 'C') {
-    breadcrumb.style.display = 'none';
-    searchCtx.classList.add('visible');
-    const ctxCount = document.getElementById('wl-search-ctx-count');
-    if (ctxCount) ctxCount.textContent = '(' + watchlist.size + ')';
-  }
-
-  document.querySelectorAll('.switcher-btn').forEach(btn => {
-    btn.classList.toggle('sw-active', btn.dataset.style === style);
-  });
-}
-
 function openFullPage() {
   document.getElementById('wl-page').classList.add('active');
   document.getElementById('wl-backdrop').classList.add('active');
   document.querySelector('.nav').classList.add('nav-wl-active');
-  document.getElementById('style-switcher').classList.add('visible');
   document.body.style.overflow = 'hidden';
-  applyHeaderStyle(headerStyle);
   renderFullPage();
 }
 
@@ -1378,12 +1284,6 @@ function closeFullPage() {
   document.getElementById('wl-page').classList.remove('active');
   document.getElementById('wl-backdrop').classList.remove('active');
   document.querySelector('.nav').classList.remove('nav-wl-active');
-  document.getElementById('style-switcher').classList.remove('visible');
-  // Reset nav links for style A
-  const navLinks = document.getElementById('nav-links');
-  const navCtx = document.getElementById('nav-wl-ctx');
-  if (navLinks) navLinks.style.display = '';
-  if (navCtx) navCtx.classList.remove('visible');
   document.body.style.overflow = '';
 }
 
