@@ -222,11 +222,13 @@
   .tab-pill:hover { border-color: #888; color: #1a1a1a; }
   .tab-active { border-color: #1a1a1a !important; color: #1a1a1a !important; font-weight: 600; }
   /* SUMMARY BAR */
-  .wl-summary-bar { display: flex; align-items: center; gap: 20px; padding: 8px 16px; background: #f8f8f8; border-bottom: 1px solid #e8e8e8; font-size: 12px; color: #555; flex-shrink: 0; flex-wrap: wrap; }
-  .summary-stat { display: flex; align-items: center; gap: 5px; }
+  .wl-summary-bar { display: flex; align-items: center; gap: 16px; padding: 8px 16px; background: #f8f8f8; border-bottom: 1px solid #e8e8e8; font-size: 12px; color: #555; flex-shrink: 0; flex-wrap: wrap; }
+  .summary-stat { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
   .summary-stat .stat-val { font-weight: 700; color: #1a1a1a; }
   .summary-stat .stat-val.urgent { color: #d44; }
   .summary-sep { color: #ddd; }
+  .summary-group-sep { width: 1px; height: 16px; background: #d8d8d8; flex-shrink: 0; }
+  .rank-pill { background: #b8860b; color: #fff; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.2px; }
 
   .wl-results-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #e8e8e8; flex-shrink: 0; }
   .results-count { font-size: 13px; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px; }
@@ -720,7 +722,15 @@
           <span class="summary-sep">·</span>
           <span class="summary-stat">📅 Ending tomorrow: <span class="stat-val" id="sum-tomorrow">0</span></span>
           <span class="summary-sep">·</span>
-          <span class="summary-stat">💰 Total exposure: <span class="stat-val" id="sum-exposure">$0</span></span>
+          <span class="summary-stat">💰 Exposure: <span class="stat-val" id="sum-exposure">$0</span></span>
+          <span class="summary-group-sep"></span>
+          <span class="summary-stat">Active bids: <span class="stat-val" id="sum-active-bids">0</span></span>
+          <span class="summary-sep">·</span>
+          <span class="summary-stat">Bought today: <span class="stat-val" id="sum-bought-today">0</span></span>
+          <span class="summary-sep">·</span>
+          <span class="summary-stat">Proxies out: <span class="stat-val" id="sum-proxies">0</span></span>
+          <span class="summary-group-sep"></span>
+          <span class="summary-stat"><span class="rank-pill" id="sum-rank">Gold Buyer</span></span>
         </div>
 
         <!-- Results bar -->
@@ -1485,6 +1495,9 @@ function toggleSidebar(id) {
 }
 
 // ─── SUMMARY BAR ─────────────────────────────────────────
+// Simulated dealer-level stats (would come from API in production)
+const dealerStats = { boughtToday: 2, proxiesOut: 3, rank: 'Gold' };
+
 function renderSummaryBar() {
   const bar = document.getElementById('wl-summary-bar');
   if (!bar) return;
@@ -1494,12 +1507,26 @@ function renderSummaryBar() {
     return;
   }
   bar.style.display = 'flex';
+
+  // Watchlist-derived stats
   const today = items.filter(v => v.urgency === 'urgent' || v.urgency === 'soon').length;
   const tomorrow = items.filter(v => v.time === 'Tomorrow').length;
   const exposure = items.reduce((sum, v) => sum + (v.priceNum || 0), 0);
+  const activeBids = items.filter(v => v.label === 'Bid').length;
+
   document.getElementById('sum-today').textContent = today;
   document.getElementById('sum-tomorrow').textContent = tomorrow;
   document.getElementById('sum-exposure').textContent = '$' + exposure.toLocaleString();
+  document.getElementById('sum-active-bids').textContent = activeBids;
+
+  // Dealer-level stats
+  document.getElementById('sum-bought-today').textContent = dealerStats.boughtToday;
+  document.getElementById('sum-proxies').textContent = dealerStats.proxiesOut;
+
+  const rankEl = document.getElementById('sum-rank');
+  rankEl.textContent = dealerStats.rank + ' Buyer';
+  const rankColors = { Gold: '#b8860b', Platinum: '#555', Elite: '#1a1a2e' };
+  rankEl.style.background = rankColors[dealerStats.rank] || '#888';
 }
 
 // ─── INIT ─────────────────────────────────────────────────
